@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>PokerAdmin Community Dashboard</title>
+<!-- Fonts -->
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@500&amp;display=swap" rel="stylesheet"/>
+<!-- Material Symbols -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "on-tertiary-fixed": "#002107",
+                        "surface-container": "#ededf2",
+                        "outline": "#7e7576",
+                        "inverse-surface": "#2e3034",
+                        "inverse-primary": "#c6c6c6",
+                        "error-container": "#ffdad6",
+                        "surface-bright": "#f9f9fe",
+                        "secondary": "#5d5e63",
+                        "on-surface": "#1a1c1f",
+                        "on-primary": "#ffffff",
+                        "on-secondary-fixed-variant": "#46464b",
+                        "surface-tint": "#5e5e5e",
+                        "surface-container-highest": "#e2e2e7",
+                        "tertiary-fixed": "#72fe88",
+                        "on-surface-variant": "#4c4546",
+                        "on-background": "#1a1c1f",
+                        "tertiary-fixed-dim": "#53e16f",
+                        "surface-container-high": "#e8e8ed",
+                        "on-primary-fixed": "#1b1b1b",
+                        "surface-dim": "#d9dade",
+                        "secondary-fixed-dim": "#c6c6cb",
+                        "on-tertiary-container": "#00993b",
+                        "on-tertiary": "#ffffff",
+                        "outline-variant": "#cfc4c5",
+                        "on-tertiary-fixed-variant": "#00531c",
+                        "on-secondary-container": "#626267",
+                        "background": "#f9f9fe",
+                        "primary-fixed": "#e2e2e2",
+                        "error": "#ba1a1a",
+                        "secondary-container": "#e0dfe4",
+                        "on-error-container": "#93000a",
+                        "primary-fixed-dim": "#c6c6c6",
+                        "tertiary-container": "#002107",
+                        "on-secondary-fixed": "#1a1b1f",
+                        "secondary-fixed": "#e3e2e7",
+                        "primary-container": "#1b1b1b",
+                        "surface-container-lowest": "#ffffff",
+                        "on-primary-fixed-variant": "#474747",
+                        "surface": "#f9f9fe",
+                        "on-error": "#ffffff",
+                        "primary": "#000000",
+                        "surface-variant": "#e2e2e7",
+                        "on-secondary": "#ffffff",
+                        "on-primary-container": "#848484",
+                        "tertiary": "#000000",
+                        "surface-container-low": "#f3f3f8",
+                        "inverse-on-surface": "#f0f0f5"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "xs": "4px",
+                        "md": "24px",
+                        "gutter": "24px",
+                        "lg": "40px",
+                        "xl": "64px",
+                        "container-max": "1200px",
+                        "base": "8px",
+                        "sm": "12px"
+                    },
+                    "fontFamily": {
+                        "display-lg": ["Plus Jakarta Sans"],
+                        "label-caps": ["Plus Jakarta Sans"],
+                        "body-lg": ["Plus Jakarta Sans"],
+                        "title-md": ["Plus Jakarta Sans"],
+                        "mono-data": ["JetBrains Mono"],
+                        "headline-lg": ["Plus Jakarta Sans"],
+                        "headline-lg-mobile": ["Plus Jakarta Sans"],
+                        "body-sm": ["Plus Jakarta Sans"]
+                    },
+                    "fontSize": {
+                        "display-lg": ["48px", {"lineHeight": "56px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                        "label-caps": ["12px", {"lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "700"}],
+                        "body-lg": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
+                        "title-md": ["20px", {"lineHeight": "28px", "fontWeight": "600"}],
+                        "mono-data": ["14px", {"lineHeight": "20px", "fontWeight": "500"}],
+                        "headline-lg": ["32px", {"lineHeight": "40px", "letterSpacing": "-0.01em", "fontWeight": "600"}],
+                        "headline-lg-mobile": ["24px", {"lineHeight": "32px", "fontWeight": "600"}],
+                        "body-sm": ["14px", {"lineHeight": "20px", "fontWeight": "400"}]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        body { font-family: 'Plus Jakarta Sans', sans-serif; -webkit-font-smoothing: antialiased; }
+        .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
+        .apple-shadow { shadow-sm: 0px 4px 20px rgba(0, 0, 0, 0.04); }
+        .glass-overlay { backdrop-filter: blur(20px); background: rgba(255, 255, 255, 0.6); }
+        .card-divider { border-bottom: 1px solid #F2F2F7; }
+        .hide-scrollbar::-webkit-scrollbar { display: none; }
+        .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+</head>
+<body class="bg-background text-on-background min-h-screen pb-32">
+<!-- TopAppBar -->
+<header class="w-full top-0 sticky z-50 bg-surface border-b border-surface-variant shadow-sm">
+<div class="flex items-center justify-between px-md py-sm w-full max-w-container-max mx-auto">
+<div class="flex items-center gap-sm">
+<img alt="Administrator profile" class="w-10 h-10 rounded-full object-cover border border-outline-variant" data-alt="A professional close-up studio portrait of a modern administrator with a friendly expression. The lighting is bright and clean, typical of a high-end corporate directory. The aesthetic is clinical and minimalist, with a soft neutral background that complements a sophisticated light-mode UI design." src="https://lh3.googleusercontent.com/aida-public/AB6AXuC8UjX_u8I__Bh7iB_7uIBx856qATLZSDXJ12WmqaNeZKT80zYOJIGNll8-OJCheb_ExmJ5EKA_zyEXK666x7DEkSdB0smXqXX6o_mfBzuwlKb9pJOTx-5Pr3udJoyM8Nfzr0WVN4pu7INhyYS6NdPKLkszxGzEywPFNTgbj_Dq-tHFSpDERzo8-QgvyF64HtshfawhInRvqYoUHQcGSrZWMVggQssir_z6gScrLQSo79XJ-tLUgYkoqp95FFbHS8vOGeOFIXXK_QM"/>
+<span class="font-headline-lg-mobile text-headline-lg-mobile text-primary font-bold">PokerAdmin</span>
+</div>
+<div class="flex items-center gap-md">
+<span class="material-symbols-outlined text-primary text-2xl" data-icon="sensors">sensors</span>
+</div>
+</div>
+</header>
+<main class="max-w-container-max mx-auto px-4 md:px-gutter mt-lg">
+<!-- Active Table Hero -->
+<section class="mb-lg">
+<div class="relative overflow-hidden rounded-xl bg-primary text-on-primary p-md flex flex-col md:flex-row items-center justify-between gap-md shadow-lg">
+<div class="absolute inset-0 opacity-10">
+
+</div>
+<div class="relative z-10">
+<div class="flex items-center gap-xs mb-xs">
+<span class="w-2 h-2 rounded-full bg-tertiary-fixed animate-pulse"></span>
+<span class="font-label-caps text-label-caps text-on-primary/60">ACTIVE TABLE: DIAMOND LOUNGE</span>
+</div>
+<h1 class="font-display-lg text-display-lg text-white mb-xs tracking-tight">$42,850.00</h1>
+<p class="font-body-lg text-body-lg text-on-primary/80">Current Pot Size • 8 Players In</p>
+</div>
+<div class="relative z-10 flex gap-sm">
+<button class="bg-white text-black px-md py-sm rounded-lg font-bold active:scale-95 transition-transform">Observe Table</button>
+<button class="bg-on-primary-fixed-variant text-white px-md py-sm rounded-lg font-bold border border-outline-variant active:scale-95 transition-transform">Details</button>
+</div>
+</div>
+</section>
+<!-- Bento Grid Layout -->
+<div class="grid grid-cols-1 md:grid-cols-12 gap-gutter">
+<!-- Latest Champion Card -->
+<div class="md:col-span-4 bg-surface-container-lowest rounded-xl p-md shadow-[0px_4px_20px_rgba(0,0,0,0.04)] flex flex-col h-full border border-surface-variant/20">
+<div class="flex justify-between items-center mb-md card-divider pb-sm">
+<h3 class="font-title-md text-title-md text-primary">Latest Champion</h3>
+<span class="material-symbols-outlined text-tertiary-fixed-variant" data-icon="workspace_premium">workspace_premium</span>
+</div>
+<div class="flex flex-col items-center justify-center flex-grow py-sm">
+<img alt="Champion Avatar" class="w-24 h-24 rounded-full border-4 border-surface-variant mb-sm object-cover" data-alt="A focused and successful professional poker player sitting in a minimalist environment. The portrait uses soft, natural lighting to emphasize a sense of victory and calm expertise. The overall style is clean and high-fidelity, matching an elite financial dashboard aesthetic with a pure white and light gray background." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDvdswUZh3ghbxAc8q-X06iCEW8lQEQDbx_rdSI8f_ZOnjC1CozdI7qd7nIY-DFIJ_vItQNAT6naOq6Csxsu4k1ArkIMu1YHDlmRmBgzajUnUlmmOq__x_IRAvH1QAqcPfjvWDtT3RaUBGElD4zwprG4m-y2yqX790Z3DscJKR7TSKqXIjfq7xZR06gIUNxiAItsS4o5dnUMmhJhl4Cmrwv-AmPYU2duZp9bWt9nnWn3Z2YvNgc4SUPQ5C9g21_2l2drCoU3i3Twgg"/>
+<h4 class="font-headline-lg-mobile text-headline-lg-mobile text-primary">Alex "The Shark" V.</h4>
+<p class="font-body-sm text-body-sm text-secondary mb-md">Won the High-Roller Sunday</p>
+<div class="flex gap-xs">
+<div class="w-12 h-16 bg-white border border-outline-variant rounded-lg flex flex-col items-center justify-center shadow-sm">
+<span class="font-bold text-lg">A</span>
+<span class="text-error">♠</span>
+</div>
+<div class="w-12 h-16 bg-white border border-outline-variant rounded-lg flex flex-col items-center justify-center shadow-sm">
+<span class="font-bold text-lg">A</span>
+<span class="text-error">♥</span>
+</div>
+</div>
+<p class="mt-sm font-label-caps text-label-caps text-secondary">WINNING HAND: POCKET ACES</p>
+</div>
+</div>
+<!-- Global Rankings -->
+<div class="md:col-span-8 bg-surface-container-lowest rounded-xl p-md shadow-[0px_4px_20px_rgba(0,0,0,0.04)] border border-surface-variant/20">
+<div class="flex justify-between items-center mb-md card-divider pb-sm">
+<h3 class="font-title-md text-title-md text-primary">Global Rankings</h3>
+<button class="text-primary font-bold text-sm hover:underline">View All</button>
+</div>
+<div class="space-y-sm">
+<!-- Rank 1 -->
+<div class="flex items-center justify-between p-sm hover:bg-surface-container-low rounded-lg transition-colors group">
+<div class="flex items-center gap-md">
+<span class="text-2xl">🥇</span>
+<img alt="Rank 1" class="w-12 h-12 rounded-full object-cover" data-alt="A high-quality avatar portrait of a top-tier poker player with a determined and confident look. The scene is shot with a shallow depth of field against a minimalist studio background. The visual style is professional and clean, consistent with a premium financial trading interface, using neutral tones and sharp details." src="https://lh3.googleusercontent.com/aida-public/AB6AXuD0LxAQXyQptrcLnUv_Uw_du7r5uiHVy4bcs5n-LYWvGkxbBHzfuPBnkfFIj-2hmr68OOyRn9jVjb4-BTGtctH8yquADIStW6U3Rdi6npa9l4KlUu2W3SQ_dYV41_rmKtrpZzfT_lA6NEaT8Ph4kY3gQrGHpNA_WiLycGbDrIxDW452OcLuOELV_MO_UKCZR8g_1_6WiAvyvtrABZtWQ3Jctci6XqAXK81CS9HoNGLfV_ROe4JrMTDQ2Q-2nt_2_8mUM1CubrHq6sM"/>
+<div>
+<h5 class="font-title-md text-primary leading-tight">Marcus Rossi</h5>
+<p class="font-body-sm text-secondary">Points: 12,450</p>
+</div>
+</div>
+<div class="text-right">
+<span class="font-mono-data text-mono-data text-tertiary-fixed-dim bg-on-tertiary-fixed px-sm py-1 rounded-full">+12.4%</span>
+</div>
+</div>
+<!-- Rank 2 -->
+<div class="flex items-center justify-between p-sm hover:bg-surface-container-low rounded-lg transition-colors">
+<div class="flex items-center gap-md">
+<span class="text-2xl">🥈</span>
+<img alt="Rank 2" class="w-12 h-12 rounded-full object-cover" data-alt="Close up portrait of a professional competitor, exhibiting a calm and calculated demeanor. The lighting is high-key and modern, emphasizing clarity and precision. The background is a soft, out-of-focus architectural space in white and light gray, fitting for a professional poker community dashboard with an Apple-inspired minimalist aesthetic." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCI1bYrpHhxjQiKYTg8n2V8cPjUupKrhqenWQ4yF4fKNl6AruAbxOKtxk4j5fosQE72J40B2fkQEEigf1GPISR4WbgRjbKSgqiU6e8JcBmY7ZHHZl2B5hRMsEi4JYteITIeuzWfFAwiyOkSWxmlixakBxdgSZyJxbU2ZXOxGQZh7JGQULg5iVTvSEwIR-2r2cFo4s5g_Th-3u7F8SPWjvCwaJzKHVe3m6XE97KqOcEDL9EgbNgWzfESY8OAI3yB0FUnKfF-axoYFXU"/>
+<div>
+<h5 class="font-title-md text-primary leading-tight">Elena Chen</h5>
+<p class="font-body-sm text-secondary">Points: 11,820</p>
+</div>
+</div>
+<div class="text-right">
+<span class="font-mono-data text-mono-data text-secondary-fixed-dim bg-secondary-container px-sm py-1 rounded-full">+4.2%</span>
+</div>
+</div>
+<!-- Rank 3 -->
+<div class="flex items-center justify-between p-sm hover:bg-surface-container-low rounded-lg transition-colors">
+<div class="flex items-center gap-md">
+<span class="text-2xl">🥉</span>
+<img alt="Rank 3" class="w-12 h-12 rounded-full object-cover" data-alt="A professional headshot of a strategic player, with an expression of intense focus. The lighting is soft yet crisp, highlighting the facial features against a clean, minimal, white gallery-style background. The overall aesthetic is professional, sophisticated, and tailored for a modern data-driven poker application user interface." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCwTDp8Op0s-C8vRYvTEQMLpQQUFYN8ycOU-W7SmjHRO69TM_cJxHcrR6sohAgqidsNauum_HjFv3dF4o4zH1gqokZTrQpaJdyCE0W_GmPt2qWbAGD15nGuA4yBWJreosYLI_9c9ml10dBYn1hLzcGpBxE_BY83ghJBs4s96rPy8cHZcXWWwxBr-jP7ehhd5mGWENuhzakeCfbay1uZ1pXptARELuAWkrSfcXoqDg9MzHLNB98Xr_ambJ398BYuV6yJDP1ty1QD0Z8"/>
+<div>
+<h5 class="font-title-md text-primary leading-tight">David Miller</h5>
+<p class="font-body-sm text-secondary">Points: 10,900</p>
+</div>
+</div>
+<div class="text-right">
+<span class="font-mono-data text-mono-data text-error bg-error-container px-sm py-1 rounded-full">-2.1%</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Recent Highlights Carousel -->
+<section class="mt-lg mb-gutter">
+<div class="flex justify-between items-center mb-md">
+<h3 class="font-headline-lg-mobile text-headline-lg-mobile text-primary">Recent Highlights</h3>
+<div class="flex gap-xs">
+<button class="p-xs bg-surface-container rounded-full hover:bg-surface-variant transition-colors">
+<span class="material-symbols-outlined" data-icon="chevron_left">chevron_left</span>
+</button>
+<button class="p-xs bg-surface-container rounded-full hover:bg-surface-variant transition-colors">
+<span class="material-symbols-outlined" data-icon="chevron_right">chevron_right</span>
+</button>
+</div>
+</div>
+<div class="flex overflow-x-auto hide-scrollbar gap-gutter pb-4">
+<!-- Highlight 1 -->
+<div class="flex-none w-[300px] bg-surface-container-lowest rounded-xl overflow-hidden shadow-[0px_4px_20px_rgba(0,0,0,0.04)] border border-surface-variant/20 transition-transform hover:scale-[1.02]">
+<div class="h-40 bg-on-surface-variant/10 relative">
+<img alt="Highlight 1" class="w-full h-full object-cover opacity-80" data-alt="A dramatic, high-contrast shot of a poker table with stacks of premium clay chips and professional playing cards scattered during a high-stakes moment. The lighting is moody and focused, with a clean minimalist aesthetic. The background is a soft-focus luxury lounge, rendered in a palette of whites, blacks, and subtle grays." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBK0rSGpTsZ8Nr0jmmWwCO-9hK3lvEfkC4ravtzLOSlLJNcF6e4FRRPXKrTzVrn6k8GeDqBmkzi7LQIQbZ_T026dB8I7DPc2L6AsYV0kTTrJ3OfLnDv1KV_ElHZsmaF0IyhlQOPZ9QZmNWQkRlXKnNBbPTP8l-ee2PgVUlfiTZcWaluy0k5EPspRGnV76tFk1BaSQ7HVBNUQG4Y-Mm2C6MYasc6609FjCXZMEAVt3tmx11m3BeCEX8KOiULoYwQmua7fzb57MnaAY4"/>
+<div class="absolute top-2 right-2 bg-black/60 backdrop-blur-md px-sm py-1 rounded text-white text-xs font-bold">BIG POT</div>
+</div>
+<div class="p-md">
+<p class="font-label-caps text-label-caps text-secondary mb-xs">MONDAY NIGHT OPEN</p>
+<h4 class="font-title-md text-primary mb-xs">$12,400 Pot Winner</h4>
+<p class="font-body-sm text-secondary">A stunning bluff-catch with second pair on the river.</p>
+</div>
+</div>
+<!-- Highlight 2 -->
+<div class="flex-none w-[300px] bg-surface-container-lowest rounded-xl overflow-hidden shadow-[0px_4px_20px_rgba(0,0,0,0.04)] border border-surface-variant/20 transition-transform hover:scale-[1.02]">
+<div class="h-40 bg-on-surface-variant/10 relative">
+<img alt="Highlight 2" class="w-full h-full object-cover opacity-80" data-alt="A macro shot of a sleek, modern deck of playing cards on a minimalist white table. The focus is on the Ace of Spades, designed with clean, sharp geometric lines. The lighting is clinical and bright, creating a serene and professional mood that aligns with a high-end financial or gaming dashboard." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCHmwSnw0HnHJHiZ04eh1hiWRw5SpG1vTCgXem0YTC4DnJ6jeVOwSgFeNgbPOyEthtf5KxIYXx3_B9Ih2rZe2dr8jfSdJYPwxwEjlatEuKkcyzs4oeLiPrT1tzwSC4L0FVk53kndXGR-Xnood0LpMsTGfmBqbJiKY1T4uDOWPZdwGZC8gjwjy7ovNqhCfVhPOFJF-xzLVuZ56ZNdUT0BwLR11Xzdct8QDTJn5ku3Fm72rhU6Ni41SgFgs72unOcgT3RmrUNhfCfjcI"/>
+<div class="absolute top-2 right-2 bg-tertiary-fixed px-sm py-1 rounded text-on-tertiary-fixed text-xs font-bold">EPIC PLAY</div>
+</div>
+<div class="p-md">
+<p class="font-label-caps text-label-caps text-secondary mb-xs">TOURNAMENT RECAP</p>
+<h4 class="font-title-md text-primary mb-xs">Straight Flush Miracle</h4>
+<p class="font-body-sm text-secondary">Marcus Rossi hits the one-outer on the river for a double up.</p>
+</div>
+</div>
+<!-- Highlight 3 -->
+<div class="flex-none w-[300px] bg-surface-container-lowest rounded-xl overflow-hidden shadow-[0px_4px_20px_rgba(0,0,0,0.04)] border border-surface-variant/20 transition-transform hover:scale-[1.02]">
+<div class="h-40 bg-on-surface-variant/10 relative">
+<img alt="Highlight 3" class="w-full h-full object-cover opacity-80" data-alt="A sophisticated digital visualization of data streams representing poker statistics and probabilities. The style is ultra-minimalist, featuring thin lines and glowing points on a crisp white and light gray background. The overall tone is calm, clinical, and data-driven, perfectly suited for an expert-level poker dashboard." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCnUoVR6fL7GhLWNIg_OcwLEF4kt-ew-_OftROV4lrYKGCo7j23zL_2BQgBnhhAkchVMJH9ht961eUaH9WjAD2s-4dlbJ6-iP5XLV_w6nxnVmihpVqB89F0pdDDoV49HgJx9jcwSRleGqB84N2By25607GdLefMLfAZv6WifISTaSwvzwLwUNTFLSgAGeML5bu1vFWOb7hoFH67LOqpmlfK6AOeHLA6e9GU6uoxC7H5uNwx6ARa2iaI54tuCAyi-w6Ln9DN4Vcejss"/>
+<div class="absolute top-2 right-2 bg-primary px-sm py-1 rounded text-white text-xs font-bold">RECAP</div>
+</div>
+<div class="p-md">
+<p class="font-label-caps text-label-caps text-secondary mb-xs">WEEKLY ANALYTICS</p>
+<h4 class="font-title-md text-primary mb-xs">Top Bluffer of the Week</h4>
+<p class="font-body-sm text-secondary">The highest aggression frequency leaderboard for September.</p>
+</div>
+</div>
+</div>
+</section>
+</main>
+<!-- BottomNavBar -->
+<nav class="fixed bottom-0 left-0 w-full z-50 bg-surface/60 backdrop-blur-xl border-t border-surface-variant">
+<div class="max-w-container-max mx-auto flex justify-around items-center px-4 pb-4 pt-2">
+<!-- Home (Active) -->
+<a class="flex flex-col items-center justify-center text-primary font-bold active:scale-90 transition-all duration-200" href="#">
+<span class="material-symbols-outlined" data-icon="grid_view" style="font-variation-settings: 'FILL' 1;">grid_view</span>
+<span class="font-label-caps text-label-caps mt-1">Table</span>
+</a>
+<!-- Mesa (Ledger) -->
+<a class="flex flex-col items-center justify-center text-secondary hover:bg-secondary-container/50 active:scale-90 transition-all duration-200 px-4 py-1 rounded-xl" href="#">
+<span class="material-symbols-outlined" data-icon="payments">payments</span>
+<span class="font-label-caps text-label-caps mt-1">Ledger</span>
+</a>
+<!-- Ranking -->
+<a class="flex flex-col items-center justify-center text-secondary hover:bg-secondary-container/50 active:scale-90 transition-all duration-200 px-4 py-1 rounded-xl" href="#">
+<span class="material-symbols-outlined" data-icon="leaderboard">leaderboard</span>
+<span class="font-label-caps text-label-caps mt-1">Rankings</span>
+</a>
+<!-- Perfil (Settings) -->
+<a class="flex flex-col items-center justify-center text-secondary hover:bg-secondary-container/50 active:scale-90 transition-all duration-200 px-4 py-1 rounded-xl" href="#">
+<span class="material-symbols-outlined" data-icon="settings">settings</span>
+<span class="font-label-caps text-label-caps mt-1">Settings</span>
+</a>
+</div>
+</nav>
+<script>
+        // Micro-interactions and basic scroll logic
+        const carousel = document.querySelector('.hide-scrollbar');
+        const nextBtn = document.querySelectorAll('button span[data-icon="chevron_right"]');
+        const prevBtn = document.querySelectorAll('button span[data-icon="chevron_left"]');
+
+        nextBtn.forEach(btn => {
+            btn.parentElement.addEventListener('click', () => {
+                carousel.scrollBy({ left: 300, behavior: 'smooth' });
+            });
+        });
+
+        prevBtn.forEach(btn => {
+            btn.parentElement.addEventListener('click', () => {
+                carousel.scrollBy({ left: -300, behavior: 'smooth' });
+            });
+        });
+
+        // Toggle Active State logic
+        const navItems = document.querySelectorAll('nav a');
+        navItems.forEach(item => {
+            item.addEventListener('click', (e) => {
+                navItems.forEach(i => {
+                    i.classList.remove('text-primary', 'font-bold');
+                    i.classList.add('text-secondary');
+                    const icon = i.querySelector('.material-symbols-outlined');
+                    if (icon) icon.style.fontVariationSettings = "'FILL' 0";
+                });
+                item.classList.add('text-primary', 'font-bold');
+                item.classList.remove('text-secondary');
+                const icon = item.querySelector('.material-symbols-outlined');
+                if (icon) icon.style.fontVariationSettings = "'FILL' 1";
+            });
+        });
+    </script>
+</body></html>

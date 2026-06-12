@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+
+<html class="light" lang="pt-BR"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>PokerAdmin Dashboard</title>
+<!-- Fonts -->
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@500&amp;display=swap" rel="stylesheet"/>
+<!-- Material Symbols -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "on-tertiary-fixed": "#002107",
+                        "surface-container": "#ededf2",
+                        "outline": "#7e7576",
+                        "inverse-surface": "#2e3034",
+                        "inverse-primary": "#c6c6c6",
+                        "error-container": "#ffdad6",
+                        "surface-bright": "#f9f9fe",
+                        "secondary": "#5d5e63",
+                        "on-surface": "#1a1c1f",
+                        "on-primary": "#ffffff",
+                        "on-secondary-fixed-variant": "#46464b",
+                        "surface-tint": "#5e5e5e",
+                        "surface-container-highest": "#e2e2e7",
+                        "tertiary-fixed": "#72fe88",
+                        "on-surface-variant": "#4c4546",
+                        "on-background": "#1a1c1f",
+                        "tertiary-fixed-dim": "#53e16f",
+                        "surface-container-high": "#e8e8ed",
+                        "on-primary-fixed": "#1b1b1b",
+                        "surface-dim": "#d9dade",
+                        "secondary-fixed-dim": "#c6c6cb",
+                        "on-tertiary-container": "#00993b",
+                        "on-tertiary": "#ffffff",
+                        "outline-variant": "#cfc4c5",
+                        "on-tertiary-fixed-variant": "#00531c",
+                        "on-secondary-container": "#626267",
+                        "background": "#f9f9fe",
+                        "primary-fixed": "#e2e2e2",
+                        "error": "#ba1a1a",
+                        "secondary-container": "#e0dfe4",
+                        "on-error-container": "#93000a",
+                        "primary-fixed-dim": "#c6c6c6",
+                        "tertiary-container": "#002107",
+                        "on-secondary-fixed": "#1a1b1f",
+                        "secondary-fixed": "#e3e2e7",
+                        "primary-container": "#1b1b1b",
+                        "surface-container-lowest": "#ffffff",
+                        "on-primary-fixed-variant": "#474747",
+                        "surface": "#f9f9fe",
+                        "on-error": "#ffffff",
+                        "primary": "#000000",
+                        "surface-variant": "#e2e2e7",
+                        "on-secondary": "#ffffff",
+                        "on-primary-container": "#848484",
+                        "tertiary": "#000000",
+                        "surface-container-low": "#f3f3f8",
+                        "inverse-on-surface": "#f0f0f5"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "xs": "4px",
+                        "md": "24px",
+                        "gutter": "24px",
+                        "lg": "40px",
+                        "xl": "64px",
+                        "container-max": "1200px",
+                        "base": "8px",
+                        "sm": "12px"
+                    },
+                    "fontFamily": {
+                        "display-lg": ["Plus Jakarta Sans"],
+                        "label-caps": ["Plus Jakarta Sans"],
+                        "body-lg": ["Plus Jakarta Sans"],
+                        "title-md": ["Plus Jakarta Sans"],
+                        "mono-data": ["JetBrains Mono"],
+                        "headline-lg": ["Plus Jakarta Sans"],
+                        "headline-lg-mobile": ["Plus Jakarta Sans"],
+                        "body-sm": ["Plus Jakarta Sans"]
+                    },
+                    "fontSize": {
+                        "display-lg": ["48px", {"lineHeight": "56px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                        "label-caps": ["12px", {"lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "700"}],
+                        "body-lg": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
+                        "title-md": ["20px", {"lineHeight": "28px", "fontWeight": "600"}],
+                        "mono-data": ["14px", {"lineHeight": "20px", "fontWeight": "500"}],
+                        "headline-lg": ["32px", {"lineHeight": "40px", "letterSpacing": "-0.01em", "fontWeight": "600"}],
+                        "headline-lg-mobile": ["24px", {"lineHeight": "32px", "fontWeight": "600"}],
+                        "body-sm": ["14px", {"lineHeight": "20px", "fontWeight": "400"}]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        body { font-family: 'Plus Jakarta Sans', sans-serif; -webkit-font-smoothing: antialiased; }
+        .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
+        .apple-shadow { box-shadow: 0 4px 24px -1px rgba(0, 0, 0, 0.06), 0 2px 8px -1px rgba(0, 0, 0, 0.02); }
+        .glass-overlay { backdrop-filter: blur(20px); background: rgba(255, 255, 255, 0.7); }
+        .card-divider { border-bottom: 1px solid rgba(0, 0, 0, 0.05); }
+        .hide-scrollbar::-webkit-scrollbar { display: none; }
+        .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+    </style>
+</head>
+<body class="bg-background text-on-background min-h-screen pb-32">
+<!-- TopAppBar -->
+<header class="w-full top-0 sticky z-50 glass-overlay border-b border-surface-variant/50">
+<div class="flex items-center justify-between px-md py-sm w-full max-w-container-max mx-auto">
+<div class="flex items-center gap-sm">
+<img alt="Perfil Administrador" class="w-10 h-10 rounded-full object-cover border border-outline-variant/30" src="https://lh3.googleusercontent.com/aida-public/AB6AXuC8UjX_u8I__Bh7iB_7uIBx856qATLZSDXJ12WmqaNeZKT80zYOJIGNll8-OJCheb_ExmJ5EKA_zyEXK666x7DEkSdB0smXqXX6o_mfBzuwlKb9pJOTx-5Pr3udJoyM8Nfzr0WVN4pu7INhyYS6NdPKLkszxGzEywPFNTgbj_Dq-tHFSpDERzo8-QgvyF64HtshfawhInRvqYoUHQcGSrZWMVggQssir_z6gScrLQSo79XJ-tLUgYkoqp95FFbHS8vOGeOFIXXK_QM"/>
+<span class="font-headline-lg-mobile text-headline-lg-mobile text-primary font-bold tracking-tight">PokerAdmin</span>
+</div>
+<div class="flex items-center gap-md">
+<span class="material-symbols-outlined text-primary text-2xl" data-icon="sensors">sensors</span>
+</div>
+</div>
+</header>
+<main class="max-w-container-max mx-auto px-4 md:px-gutter mt-lg space-y-lg">
+<!-- Active Table Hero -->
+<section>
+<div class="relative overflow-hidden rounded-2xl bg-black text-white p-md md:p-lg flex flex-col md:flex-row items-center justify-between gap-md shadow-2xl">
+<div class="relative z-10 w-full md:w-auto">
+<div class="flex items-center gap-xs mb-xs">
+<span class="w-2 h-2 rounded-full bg-tertiary-fixed animate-pulse"></span>
+<span class="font-label-caps text-label-caps text-white/60 tracking-widest">MESA ATIVA: DIAMOND LOUNGE</span>
+</div>
+<h1 class="font-display-lg text-display-lg text-white mb-xs tracking-tight">R$ 42.850,00</h1>
+<p class="font-body-lg text-body-lg text-white/80">Pote Atual • 8 Jogadores</p>
+</div>
+<div class="relative z-10 flex gap-sm w-full md:w-auto">
+<button class="flex-1 md:flex-none bg-white text-black px-md py-sm rounded-xl font-bold active:scale-95 transition-all">Observar</button>
+<button class="flex-1 md:flex-none bg-white/10 backdrop-blur-md text-white px-md py-sm rounded-xl font-bold border border-white/20 active:scale-95 transition-all">Detalhes</button>
+</div>
+</div>
+</section>
+<!-- Bento Grid Layout -->
+<div class="grid grid-cols-1 md:grid-cols-12 gap-gutter">
+<!-- Latest Champion Card -->
+<div class="md:col-span-4 bg-surface-container-lowest rounded-2xl p-md apple-shadow flex flex-col border border-surface-variant/20">
+<div class="flex justify-between items-center mb-md card-divider pb-sm">
+<h3 class="font-title-md text-title-md text-primary">Último Campeão</h3>
+<span class="material-symbols-outlined text-amber-500" data-icon="workspace_premium">workspace_premium</span>
+</div>
+<div class="flex flex-col items-center justify-center flex-grow py-sm">
+<img alt="Avatar Campeão" class="w-24 h-24 rounded-full border-4 border-surface-variant/30 mb-sm object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDvdswUZh3ghbxAc8q-X06iCEW8lQEQDbx_rdSI8f_ZOnjC1CozdI7qd7nIY-DFIJ_vItQNAT6naOq6Csxsu4k1ArkIMu1YHDlmRmBgzajUnUlmmOq__x_IRAvH1QAqcPfjvWDtT3RaUBGElD4zwprG4m-y2yqX790Z3DscJKR7TSKqXIjfq7xZR06gIUNxiAItsS4o5dnUMmhJhl4Cmrwv-AmPYU2duZp9bWt9nnWn3Z2YvNgc4SUPQ5C9g21_2l2drCoU3i3Twgg"/>
+<h4 class="font-headline-lg-mobile text-headline-lg-mobile text-primary">Alex "The Shark" V.</h4>
+<p class="font-body-sm text-body-sm text-secondary mb-md">Venceu o High-Roller de Domingo</p>
+<div class="flex gap-xs">
+<div class="w-12 h-16 bg-white border border-outline-variant/30 rounded-lg flex flex-col items-center justify-center shadow-sm">
+<span class="font-bold text-lg">A</span>
+<span class="text-black">♠</span>
+</div>
+<div class="w-12 h-16 bg-white border border-outline-variant/30 rounded-lg flex flex-col items-center justify-center shadow-sm">
+<span class="font-bold text-lg">A</span>
+<span class="text-error">♥</span>
+</div>
+</div>
+<p class="mt-sm font-label-caps text-label-caps text-secondary font-semibold">MÃO VENCEDORA: POCKET ACES</p>
+</div>
+</div>
+<!-- Global Rankings -->
+<div class="md:col-span-8 bg-surface-container-lowest rounded-2xl p-md apple-shadow border border-surface-variant/20">
+<div class="flex justify-between items-center mb-md card-divider pb-sm">
+<h3 class="font-title-md text-title-md text-primary">Ranking Global</h3>
+<button class="text-primary font-bold text-sm hover:opacity-70 transition-opacity">Ver Todos</button>
+</div>
+<div class="space-y-2">
+<!-- Rank 1 -->
+<div class="flex items-center justify-between p-sm hover:bg-surface-container-low rounded-xl transition-all group">
+<div class="flex items-center gap-md">
+<span class="text-2xl w-8 text-center">🥇</span>
+<img alt="Rank 1" class="w-12 h-12 rounded-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuD0LxAQXyQptrcLnUv_Uw_du7r5uiHVy4bcs5n-LYWvGkxbBHzfuPBnkfFIj-2hmr68OOyRn9jVjb4-BTGtctH8yquADIStW6U3Rdi6npa9l4KlUu2W3SQ_dYV41_rmKtrpZzfT_lA6NEaT8Ph4kY3gQrGHpNA_WiLycGbDrIxDW452OcLuOELV_MO_UKCZR8g_1_6WiAvyvtrABZtWQ3Jctci6XqAXK81CS9HoNGLfV_ROe4JrMTDQ2Q-2nt_2_8mUM1CubrHq6sM"/>
+<div>
+<h5 class="font-title-md text-primary leading-tight text-base">Marcus Rossi</h5>
+<p class="font-body-sm text-secondary">Pontos: 12.450</p>
+</div>
+</div>
+<div class="text-right">
+<span class="font-mono-data text-xs text-green-600 bg-green-50 px-3 py-1 rounded-full font-bold">+12.4%</span>
+</div>
+</div>
+<!-- Rank 2 -->
+<div class="flex items-center justify-between p-sm hover:bg-surface-container-low rounded-xl transition-all">
+<div class="flex items-center gap-md">
+<span class="text-2xl w-8 text-center">🥈</span>
+<img alt="Rank 2" class="w-12 h-12 rounded-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCI1bYrpHhxjQiKYTg8n2V8cPjUupKrhqenWQ4yF4fKNl6AruAbxOKtxk4j5fosQE72J40B2fkQEEigf1GPISR4WbgRjbKSgqiU6e8JcBmY7ZHHZl2B5hRMsEi4JYteITIeuzWfFAwiyOkSWxmlixakBxdgSZyJxbU2ZXOxGQZh7JGQULg5iVTvSEwIR-2r2cFo4s5g_Th-3u7F8SPWjvCwaJzKHVe3m6XE97KqOcEDL9EgbNgWzfESY8OAI3yB0FUnKfF-axoYFXU"/>
+<div>
+<h5 class="font-title-md text-primary leading-tight text-base">Elena Chen</h5>
+<p class="font-body-sm text-secondary">Pontos: 11.820</p>
+</div>
+</div>
+<div class="text-right">
+<span class="font-mono-data text-xs text-secondary-fixed-dim bg-secondary-container/30 px-3 py-1 rounded-full font-bold">+4.2%</span>
+</div>
+</div>
+<!-- Rank 3 -->
+<div class="flex items-center justify-between p-sm hover:bg-surface-container-low rounded-xl transition-all">
+<div class="flex items-center gap-md">
+<span class="text-2xl w-8 text-center">🥉</span>
+<img alt="Rank 3" class="w-12 h-12 rounded-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCwTDp8Op0s-C8vRYvTEQMLpQQUFYN8ycOU-W7SmjHRO69TM_cJxHcrR6sohAgqidsNauum_HjFv3dF4o4zH1gqokZTrQpaJdyCE0W_GmPt2qWbAGD15nGuA4yBWJreosYLI_9c9ml10dBYn1hLzcGpBxE_BY83ghJBs4s96rPy8cHZcXWWwxBr-jP7ehhd5mGWENuhzakeCfbay1uZ1pXptARELuAWkrSfcXoqDg9MzHLNB98Xr_ambJ398BYuV6yJDP1ty1QD0Z8"/>
+<div>
+<h5 class="font-title-md text-primary leading-tight text-base">David Miller</h5>
+<p class="font-body-sm text-secondary">Pontos: 10.900</p>
+</div>
+</div>
+<div class="text-right">
+<span class="font-mono-data text-xs text-error bg-error-container/40 px-3 py-1 rounded-full font-bold">-2.1%</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Próximos Eventos -->
+<section>
+<div class="flex justify-between items-center mb-md">
+<h3 class="font-headline-lg-mobile text-headline-lg-mobile text-primary">Próximos Eventos</h3>
+<button class="text-primary font-bold text-sm hover:opacity-70 transition-opacity">Calendário Completo</button>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-gutter">
+<!-- Event Card 1 -->
+<div class="flex bg-surface-container-lowest rounded-2xl overflow-hidden apple-shadow border border-surface-variant/20 hover:scale-[1.01] transition-transform">
+<div class="w-1/3 min-w-[120px]">
+<img alt="Evento" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDlrFZjxjt7AcbiI5deTdNUMkEFJHdcAvfYXlwHVnuJsluI7auAuPcUy0cc26zNn1E2VpLTXmni0mMrv-icitZF5HQ5qubAYuFzIrX5m0tSurmVanH0IdkfYtxTcaWkHaRpreHkHNMu7fgdCSxUFtz04AT0bpTkwrrOXlQvj8Wav1U0r6gNM_PQVBdDJQtkZ2AERLzG7-lRLH0Xp7oxSNoT8GOPKwaHSvRhCv7HeI08Z3ktg1K41xlHASqiilZ4gjWMje4N16Yay7g"/>
+</div>
+<div class="p-md flex flex-col justify-center gap-xs">
+<h4 class="font-title-md text-primary text-lg">Torneio Mensal - Deepstack</h4>
+<p class="font-body-sm text-secondary">R$ 5.000 garantidos. Início às 20:00.</p>
+<a class="text-primary font-bold text-sm mt-sm flex items-center gap-1 hover:underline" href="#">
+                            Saiba Mais <span class="material-symbols-outlined text-sm" data-icon="arrow_forward">arrow_forward</span>
+</a>
+</div>
+</div>
+<!-- Event Card 2 -->
+<div class="flex bg-surface-container-lowest rounded-2xl overflow-hidden apple-shadow border border-surface-variant/20 hover:scale-[1.01] transition-transform">
+<div class="w-1/3 min-w-[120px]">
+<img alt="Evento" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDlrFZjxjt7AcbiI5deTdNUMkEFJHdcAvfYXlwHVnuJsluI7auAuPcUy0cc26zNn1E2VpLTXmni0mMrv-icitZF5HQ5qubAYuFzIrX5m0tSurmVanH0IdkfYtxTcaWkHaRpreHkHNMu7fgdCSxUFtz04AT0bpTkwrrOXlQvj8Wav1U0r6gNM_PQVBdDJQtkZ2AERLzG7-lRLH0Xp7oxSNoT8GOPKwaHSvRhCv7HeI08Z3ktg1K41xlHASqiilZ4gjWMje4N16Yay7g"/>
+</div>
+<div class="p-md flex flex-col justify-center gap-xs">
+<h4 class="font-title-md text-primary text-lg">Freeroll de Boas-Vindas</h4>
+<p class="font-body-sm text-secondary">Entrada gratuita para novos membros. Às 19:00.</p>
+<a class="text-primary font-bold text-sm mt-sm flex items-center gap-1 hover:underline" href="#">
+                            Saiba Mais <span class="material-symbols-outlined text-sm" data-icon="arrow_forward">arrow_forward</span>
+</a>
+</div>
+</div>
+</div>
+</section>
+<!-- Destaques Carousel -->
+<section class="mb-gutter">
+<div class="flex justify-between items-center mb-md">
+<h3 class="font-headline-lg-mobile text-headline-lg-mobile text-primary">Destaques</h3>
+<div class="flex gap-2">
+<button class="w-10 h-10 flex items-center justify-center bg-surface-container rounded-full hover:bg-surface-variant transition-colors">
+<span class="material-symbols-outlined" data-icon="chevron_left">chevron_left</span>
+</button>
+<button class="w-10 h-10 flex items-center justify-center bg-surface-container rounded-full hover:bg-surface-variant transition-colors">
+<span class="material-symbols-outlined" data-icon="chevron_right">chevron_right</span>
+</button>
+</div>
+</div>
+<div class="flex overflow-x-auto hide-scrollbar gap-gutter pb-4">
+<!-- Highlight 1 -->
+<div class="flex-none w-[300px] bg-surface-container-lowest rounded-2xl overflow-hidden apple-shadow border border-surface-variant/20 transition-all hover:translate-y-[-4px]">
+<div class="h-40 bg-on-surface-variant/10 relative">
+<img alt="Destaque 1" class="w-full h-full object-cover opacity-90" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBK0rSGpTsZ8Nr0jmmWwCO-9hK3lvEfkC4ravtzLOSlLJNcF6e4FRRPXKrTzVrn6k8GeDqBmkzi7LQIQbZ_T026dB8I7DPc2L6AsYV0kTTrJ3OfLnDv1KV_ElHZsmaF0IyhlQOPZ9QZmNWQkRlXKnNBbPTP8l-ee2PgVUlfiTZcWaluy0k5EPspRGnV76tFk1BaSQ7HVBNUQG4Y-Mm2C6MYasc6609FjCXZMEAVt3tmx11m3BeCEX8KOiULoYwQmua7fzb57MnaAY4"/>
+<div class="absolute top-3 right-3 bg-black/80 backdrop-blur-md px-3 py-1 rounded-full text-white text-[10px] font-bold uppercase tracking-wider">Grande Pote</div>
+</div>
+<div class="p-md">
+<p class="font-label-caps text-[10px] text-secondary mb-1 font-bold uppercase tracking-widest">Aberto de Segunda</p>
+<h4 class="font-title-md text-primary mb-1">Vencedor de R$ 12.400</h4>
+<p class="font-body-sm text-secondary">Um blefe incrível no river garantiu a vitória.</p>
+</div>
+</div>
+<!-- Highlight 2 -->
+<div class="flex-none w-[300px] bg-surface-container-lowest rounded-2xl overflow-hidden apple-shadow border border-surface-variant/20 transition-all hover:translate-y-[-4px]">
+<div class="h-40 bg-on-surface-variant/10 relative">
+<img alt="Destaque 2" class="w-full h-full object-cover opacity-90" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCHmwSnw0HnHJHiZ04eh1hiWRw5SpG1vTCgXem0YTC4DnJ6jeVOwSgFeNgbPOyEthtf5KxIYXx3_B9Ih2rZe2dr8jfSdJYPwxwEjlatEuKkcyzs4oeLiPrT1tzwSC4L0FVk53kndXGR-Xnood0LpMsTGfmBqbJiKY1T4uDOWPZdwGZC8gjwjy7ovNqhCfVhPOFJF-xzLVuZ56ZNdUT0BwLR11Xzdct8QDTJn5ku3Fm72rhU6Ni41SgFgs72unOcgT3RmrUNhfCfjcI"/>
+<div class="absolute top-3 right-3 bg-tertiary-fixed px-3 py-1 rounded-full text-on-tertiary-fixed text-[10px] font-bold uppercase tracking-wider">Jogada Épica</div>
+</div>
+<div class="p-md">
+<p class="font-label-caps text-[10px] text-secondary mb-1 font-bold uppercase tracking-widest">Resumo do Torneio</p>
+<h4 class="font-title-md text-primary mb-1">Milagre no River</h4>
+<p class="font-body-sm text-secondary">Marcus Rossi acerta um Straight Flush salvador.</p>
+</div>
+</div>
+<!-- Highlight 3 -->
+<div class="flex-none w-[300px] bg-surface-container-lowest rounded-2xl overflow-hidden apple-shadow border border-surface-variant/20 transition-all hover:translate-y-[-4px]">
+<div class="h-40 bg-on-surface-variant/10 relative">
+<img alt="Destaque 3" class="w-full h-full object-cover opacity-90" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCnUoVR6fL7GhLWNIg_OcwLEF4kt-ew-_OftROV4lrYKGCo7j23zL_2BQgBnhhAkchVMJH9ht961eUaH9WjAD2s-4dlbJ6-iP5XLV_w6nxnVmihpVqB89F0pdDDoV49HgJx9jcwSRleGqB84N2By25607GdLefMLfAZv6WifISTaSwvzwLwUNTFLSgAGeML5bu1vFWOb7hoFH67LOqpmlfK6AOeHLA6e9GU6uoxC7H5uNwx6ARa2iaI54tuCAyi-w6Ln9DN4Vcejss"/>
+<div class="absolute top-3 right-3 bg-primary px-3 py-1 rounded-full text-white text-[10px] font-bold uppercase tracking-wider">Analítico</div>
+</div>
+<div class="p-md">
+<p class="font-label-caps text-[10px] text-secondary mb-1 font-bold uppercase tracking-widest">Estatísticas Semanais</p>
+<h4 class="font-title-md text-primary mb-1">Mestre do Blefe</h4>
+<p class="font-body-sm text-secondary">Líderes em frequência de agressão no mês.</p>
+</div>
+</div>
+</div>
+</section>
+</main>
+<!-- BottomNavBar -->
+<nav class="fixed bottom-0 left-0 w-full z-50 bg-white/70 backdrop-blur-2xl border-t border-surface-variant/30">
+<div class="max-w-container-max mx-auto flex justify-around items-center px-4 pb-6 pt-3">
+<!-- Mesa (Ativo) -->
+<a class="flex flex-col items-center justify-center text-primary font-bold active:scale-90 transition-all" href="#">
+<span class="material-symbols-outlined" data-icon="grid_view" style="font-variation-settings: 'FILL' 1;">grid_view</span>
+<span class="font-label-caps text-[10px] font-bold mt-1 uppercase">Mesa</span>
+</a>
+<!-- Caixa (Ledger) -->
+<a class="flex flex-col items-center justify-center text-secondary hover:text-primary active:scale-90 transition-all" href="#">
+<span class="material-symbols-outlined" data-icon="payments">payments</span>
+<span class="font-label-caps text-[10px] mt-1 uppercase">Caixa</span>
+</a>
+<!-- Ranking -->
+<a class="flex flex-col items-center justify-center text-secondary hover:text-primary active:scale-90 transition-all" href="#">
+<span class="material-symbols-outlined" data-icon="leaderboard">leaderboard</span>
+<span class="font-label-caps text-[10px] mt-1 uppercase">Rankings</span>
+</a>
+<!-- Ajustes (Settings) -->
+<a class="flex flex-col items-center justify-center text-secondary hover:text-primary active:scale-90 transition-all" href="#">
+<span class="material-symbols-outlined" data-icon="settings">settings</span>
+<span class="font-label-caps text-[10px] mt-1 uppercase">Ajustes</span>
+</a>
+</div>
+</nav>
+<script>
+        // Micro-interactions and basic scroll logic
+        const carousel = document.querySelector('.hide-scrollbar');
+        const nextBtn = document.querySelectorAll('button span[data-icon="chevron_right"]');
+        const prevBtn = document.querySelectorAll('button span[data-icon="chevron_left"]');
+
+        nextBtn.forEach(btn => {
+            btn.parentElement.addEventListener('click', () => {
+                carousel.scrollBy({ left: 300, behavior: 'smooth' });
+            });
+        });
+
+        prevBtn.forEach(btn => {
+            btn.parentElement.addEventListener('click', () => {
+                carousel.scrollBy({ left: -300, behavior: 'smooth' });
+            });
+        });
+
+        // Toggle Active State logic
+        const navItems = document.querySelectorAll('nav a');
+        navItems.forEach(item => {
+            item.addEventListener('click', (e) => {
+                navItems.forEach(i => {
+                    i.classList.remove('text-primary', 'font-bold');
+                    i.classList.add('text-secondary');
+                    const icon = i.querySelector('.material-symbols-outlined');
+                    if (icon) icon.style.fontVariationSettings = "'FILL' 0";
+                });
+                item.classList.add('text-primary', 'font-bold');
+                item.classList.remove('text-secondary');
+                const icon = item.querySelector('.material-symbols-outlined');
+                if (icon) icon.style.fontVariationSettings = "'FILL' 1";
+            });
+        });
+    </script>
+</body></html>

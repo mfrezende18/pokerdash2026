@@ -1,0 +1,239 @@
+@import "tailwindcss";
+@source "../**/*.tsx";
+/* ===== Pure Logic Design Tokens ===== */
+@theme inline {
+  /* Colors — Material Design 3 Monochromatic */
+  --color-surface: #f9f9fe;
+  --color-surface-dim: #d9dade;
+  --color-surface-bright: #f9f9fe;
+  --color-surface-container-lowest: #ffffff;
+  --color-surface-container-low: #f3f3f8;
+  --color-surface-container: #ededf2;
+  --color-surface-container-high: #e8e8ed;
+  --color-surface-container-highest: #e2e2e7;
+  --color-on-surface: #1a1c1f;
+  --color-on-surface-variant: #4c4546;
+  --color-inverse-surface: #2e3034;
+  --color-inverse-on-surface: #f0f0f5;
+  --color-outline: #7e7576;
+  --color-outline-variant: #cfc4c5;
+  --color-surface-tint: #5e5e5e;
+  --color-surface-variant: #e2e2e7;
+  --color-background: #f9f9fe;
+  --color-on-background: #1a1c1f;
+
+  /* Primary */
+  --color-primary: #000000;
+  --color-on-primary: #ffffff;
+  --color-primary-container: #1b1b1b;
+  --color-on-primary-container: #848484;
+  --color-inverse-primary: #c6c6c6;
+  --color-primary-fixed: #e2e2e2;
+  --color-primary-fixed-dim: #c6c6c6;
+  --color-on-primary-fixed: #1b1b1b;
+  --color-on-primary-fixed-variant: #474747;
+
+  /* Secondary */
+  --color-secondary: #5d5e63;
+  --color-on-secondary: #ffffff;
+  --color-secondary-container: #e0dfe4;
+  --color-on-secondary-container: #626267;
+  --color-secondary-fixed: #e3e2e7;
+  --color-secondary-fixed-dim: #c6c6cb;
+  --color-on-secondary-fixed: #1a1b1f;
+  --color-on-secondary-fixed-variant: #46464b;
+
+  /* Tertiary (Green accent) */
+  --color-tertiary: #000000;
+  --color-on-tertiary: #ffffff;
+  --color-tertiary-container: #002107;
+  --color-on-tertiary-container: #00993b;
+  --color-tertiary-fixed: #72fe88;
+  --color-tertiary-fixed-dim: #53e16f;
+  --color-on-tertiary-fixed: #002107;
+  --color-on-tertiary-fixed-variant: #00531c;
+
+  /* Error */
+  --color-error: #ba1a1a;
+  --color-on-error: #ffffff;
+  --color-error-container: #ffdad6;
+  --color-on-error-container: #93000a;
+
+  /* Typography */
+  --font-sans: var(--font-plus-jakarta), system-ui, sans-serif;
+  --font-mono: var(--font-jetbrains), ui-monospace, monospace;
+
+  /* Spacing */
+  --spacing-xs: 4px;
+  --spacing-sm: 12px;
+  --spacing-md: 24px;
+  --spacing-lg: 40px;
+  --spacing-xl: 64px;
+  --spacing-gutter: 24px;
+
+  /* Border Radius */
+  --radius-sm: 0.25rem;
+  --radius-md: 0.5rem;
+  --radius-lg: 0.75rem;
+  --radius-xl: 1rem;
+  --radius-2xl: 1.5rem;
+}
+
+/* ===== Base Styles ===== */
+body {
+  font-family: var(--font-plus-jakarta), system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  background: var(--color-background);
+  color: var(--color-on-background);
+}
+
+/* ===== Material Symbols ===== */
+.material-symbols-outlined {
+  font-family: 'Material Symbols Outlined';
+  font-weight: normal;
+  font-style: normal;
+  font-size: 24px;
+  line-height: 1;
+  letter-spacing: normal;
+  text-transform: none;
+  display: inline-block;
+  white-space: nowrap;
+  word-wrap: normal;
+  direction: ltr;
+  font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+}
+
+/* ===== Pure Logic Utility Classes ===== */
+
+/* Apple-style ambient shadow */
+.apple-shadow {
+  box-shadow: 0 4px 24px -1px rgba(0, 0, 0, 0.06), 0 2px 8px -1px rgba(0, 0, 0, 0.02);
+}
+
+/* iOS-style subtle shadow */
+.ios-shadow {
+  box-shadow: 0px 4px 20px rgba(0, 0, 0, 0.04);
+}
+
+/* Glassmorphism overlay */
+.glass-overlay {
+  backdrop-filter: blur(20px);
+  background: rgba(255, 255, 255, 0.7);
+}
+
+/* Card internal divider */
+.card-divider {
+  border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+/* Hide scrollbar */
+.hide-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.hide-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+/* ===== Typography Scale ===== */
+.text-display-lg {
+  font-family: var(--font-plus-jakarta), sans-serif;
+  font-size: 48px;
+  line-height: 56px;
+  letter-spacing: -0.02em;
+  font-weight: 700;
+}
+
+.text-headline-lg {
+  font-family: var(--font-plus-jakarta), sans-serif;
+  font-size: 32px;
+  line-height: 40px;
+  letter-spacing: -0.01em;
+  font-weight: 600;
+}
+
+.text-headline-lg-mobile {
+  font-family: var(--font-plus-jakarta), sans-serif;
+  font-size: 24px;
+  line-height: 32px;
+  font-weight: 600;
+}
+
+.text-title-md {
+  font-family: var(--font-plus-jakarta), sans-serif;
+  font-size: 20px;
+  line-height: 28px;
+  font-weight: 600;
+}
+
+.text-body-lg {
+  font-family: var(--font-plus-jakarta), sans-serif;
+  font-size: 16px;
+  line-height: 24px;
+  font-weight: 400;
+}
+
+.text-body-sm {
+  font-family: var(--font-plus-jakarta), sans-serif;
+  font-size: 14px;
+  line-height: 20px;
+  font-weight: 400;
+}
+
+.text-label-caps {
+  font-family: var(--font-plus-jakarta), sans-serif;
+  font-size: 12px;
+  line-height: 16px;
+  letter-spacing: 0.05em;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.text-mono-data {
+  font-family: var(--font-jetbrains), monospace;
+  font-size: 14px;
+  line-height: 20px;
+  font-weight: 500;
+}
+
+/* ===== Animations ===== */
+@keyframes pulse-soft {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+
+.animate-pulse-soft {
+  animation: pulse-soft 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+@keyframes slide-up {
+  from { transform: translateY(16px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+
+.animate-slide-up {
+  animation: slide-up 0.3s ease-out;
+}
+
+@keyframes fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.animate-fade-in {
+  animation: fade-in 0.2s ease-out;
+}
+
+/* ===== Skeleton Loading ===== */
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+.skeleton {
+  background: linear-gradient(90deg, var(--color-surface-container) 25%, var(--color-surface-container-high) 50%, var(--color-surface-container) 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s ease-in-out infinite;
+  border-radius: var(--radius-md);
+}

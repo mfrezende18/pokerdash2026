@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>PokerAdmin Dashboard</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@500&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .ios-shadow {
+            box-shadow: 0px 4px 20px rgba(0, 0, 0, 0.04);
+        }
+        .glass-overlay {
+            backdrop-filter: blur(20px);
+            background: rgba(255, 255, 255, 0.6);
+        }
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            -webkit-font-smoothing: antialiased;
+        }
+    </style>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "surface-dim": "#d9dade",
+                        "outline-variant": "#cfc4c5",
+                        "on-primary": "#ffffff",
+                        "surface-container": "#ededf2",
+                        "on-tertiary": "#ffffff",
+                        "on-secondary-container": "#626267",
+                        "inverse-primary": "#c6c6c6",
+                        "inverse-surface": "#2e3034",
+                        "error": "#ba1a1a",
+                        "secondary": "#5d5e63",
+                        "secondary-fixed": "#e3e2e7",
+                        "on-primary-fixed": "#1b1b1b",
+                        "on-surface": "#1a1c1f",
+                        "surface-bright": "#f9f9fe",
+                        "on-tertiary-container": "#00993b",
+                        "tertiary-container": "#002107",
+                        "on-primary-fixed-variant": "#474747",
+                        "secondary-container": "#e0dfe4",
+                        "primary-fixed-dim": "#c6c6c6",
+                        "error-container": "#ffdad6",
+                        "on-primary-container": "#848484",
+                        "on-surface-variant": "#4c4546",
+                        "primary-container": "#1b1b1b",
+                        "inverse-on-surface": "#f0f0f5",
+                        "primary": "#000000",
+                        "on-tertiary-fixed-variant": "#00531c",
+                        "outline": "#7e7576",
+                        "primary-fixed": "#e2e2e2",
+                        "tertiary-fixed": "#72fe88",
+                        "on-background": "#1a1c1f",
+                        "on-secondary": "#ffffff",
+                        "surface-variant": "#e2e2e7",
+                        "surface": "#f9f9fe",
+                        "on-secondary-fixed-variant": "#46464b",
+                        "tertiary": "#000000",
+                        "surface-container-highest": "#e2e2e7",
+                        "on-error": "#ffffff",
+                        "tertiary-fixed-dim": "#53e16f",
+                        "on-tertiary-fixed": "#002107",
+                        "surface-tint": "#5e5e5e",
+                        "surface-container-lowest": "#ffffff",
+                        "surface-container-high": "#e8e8ed",
+                        "background": "#f9f9fe",
+                        "surface-container-low": "#f3f3f8",
+                        "on-secondary-fixed": "#1a1b1f",
+                        "on-error-container": "#93000a",
+                        "secondary-fixed-dim": "#c6c6cb"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "gutter": "24px",
+                        "lg": "40px",
+                        "xl": "64px",
+                        "sm": "12px",
+                        "container-max": "1200px",
+                        "base": "8px",
+                        "xs": "4px",
+                        "md": "24px"
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background text-on-background min-h-screen pb-32">
+<!-- TopAppBar -->
+<header class="w-full top-0 sticky z-40 bg-surface border-b border-surface-variant shadow-sm">
+<div class="flex items-center justify-between px-md py-sm w-full max-w-container-max mx-auto">
+<div class="flex items-center gap-3">
+<div class="w-8 h-8 rounded-full bg-surface-container overflow-hidden border border-outline-variant">
+<img alt="Administrator" class="w-full h-full object-cover" data-alt="A clean, professional close-up portrait of a modern administrator in a bright, minimalist setting. The person has a friendly but focused expression, wearing professional attire that fits a high-end, monochrome aesthetic. The lighting is soft and even, highlighting a pure white background with subtle gray shadows, maintaining a clinical and high-stakes financial atmosphere." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDYezqRCmGPMzTA6Fsasp6RYngh6DOnbxTW_j6RQ6PXjA-Jber2eg9Im1PqNNa8LxwwKXf5vvcZqaqo9Rz5Rl4CHYq1MpcdDg9YuTn_740lBl59vLu8_wXmSxl9TRZYrFwLs0IfFFCvn_L3G4IzkO1HKPNR2gNtP3oCO5VW5Eod5HFgvigWL1KqjWJI3a0n_HFV6lVkYHRv_SYiPvlnRSK4nlfHyuDbiTVw-ozGUcDeZhICi82N5mr-LKqjUoJ8T8rLCLJuzJptkJc"/>
+</div>
+<h1 class="font-headline-lg-mobile text-headline-lg-mobile text-primary">PokerAdmin</h1>
+</div>
+<div class="flex items-center gap-4">
+<button class="material-symbols-outlined text-primary active:scale-95 transition-transform hover:opacity-80">sensors</button>
+</div>
+</div>
+</header>
+<main class="max-w-container-max mx-auto px-4 md:px-gutter mt-8">
+<!-- Metrics Section: Pot & Rake -->
+<section class="grid grid-cols-1 md:grid-cols-2 gap-gutter mb-lg">
+<div class="bg-surface-container-lowest p-8 rounded-xl ios-shadow border border-surface-variant flex flex-col items-center md:items-start">
+<span class="text-label-caps font-bold text-secondary mb-2 tracking-wider">TOTAL POT</span>
+<div class="flex items-baseline gap-2">
+<span class="text-display-lg font-bold text-primary tracking-tighter">$4,250</span>
+<span class="text-tertiary-fixed-dim font-mono-data text-body-sm">+12%</span>
+</div>
+<div class="w-full h-1 bg-surface-container-high rounded-full mt-6 overflow-hidden">
+<div class="w-3/4 h-full bg-primary"></div>
+</div>
+</div>
+<div class="bg-surface-container-lowest p-8 rounded-xl ios-shadow border border-surface-variant flex flex-col items-center md:items-start">
+<span class="text-label-caps font-bold text-secondary mb-2 tracking-wider">TOTAL RAKE</span>
+<div class="flex items-baseline gap-2">
+<span class="text-display-lg font-bold text-primary tracking-tighter">$128</span>
+<span class="text-secondary-fixed-dim font-mono-data text-body-sm">3.0%</span>
+</div>
+<div class="w-full h-1 bg-surface-container-high rounded-full mt-6 overflow-hidden">
+<div class="w-1/4 h-full bg-primary"></div>
+</div>
+</div>
+</section>
+<!-- Bento Grid Actions -->
+<section class="mb-lg">
+<h2 class="font-title-md text-title-md text-primary mb-6">Game Actions</h2>
+<div class="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-gutter">
+<!-- Action: Record Buy-in -->
+<button class="group flex flex-col p-6 bg-surface-container-lowest border border-surface-variant rounded-xl ios-shadow transition-all hover:bg-surface-container active:scale-95 text-left">
+<div class="w-12 h-12 rounded-lg bg-primary text-on-primary flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">add_circle</span>
+</div>
+<span class="font-title-md text-body-lg text-primary font-bold">Record Buy-in</span>
+<p class="text-body-sm text-secondary mt-1">Add initial stack</p>
+</button>
+<!-- Action: Add Re-buy -->
+<button class="group flex flex-col p-6 bg-surface-container-lowest border border-surface-variant rounded-xl ios-shadow transition-all hover:bg-surface-container active:scale-95 text-left">
+<div class="w-12 h-12 rounded-lg bg-secondary-container text-primary flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+<span class="material-symbols-outlined">restart_alt</span>
+</div>
+<span class="font-title-md text-body-lg text-primary font-bold">Add Re-buy</span>
+<p class="text-body-sm text-secondary mt-1">Top up player</p>
+</button>
+<!-- Action: Cash Out -->
+<button class="group flex flex-col p-6 bg-surface-container-lowest border border-surface-variant rounded-xl ios-shadow transition-all hover:bg-surface-container active:scale-95 text-left">
+<div class="w-12 h-12 rounded-lg bg-tertiary-container text-on-tertiary-container flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+<span class="material-symbols-outlined">payments</span>
+</div>
+<span class="font-title-md text-body-lg text-primary font-bold">Cash Out Player</span>
+<p class="text-body-sm text-secondary mt-1">Process payout</p>
+</button>
+<!-- Action: Session History -->
+<button class="group flex flex-col p-6 bg-surface-container-lowest border border-surface-variant rounded-xl ios-shadow transition-all hover:bg-surface-container active:scale-95 text-left">
+<div class="w-12 h-12 rounded-lg bg-surface-container-highest text-secondary flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+<span class="material-symbols-outlined">history</span>
+</div>
+<span class="font-title-md text-body-lg text-primary font-bold">Session History</span>
+<p class="text-body-sm text-secondary mt-1">Review activity</p>
+</button>
+</div>
+</section>
+<!-- Active Table Placeholder -->
+<section class="mb-lg">
+<div class="bg-surface-container-lowest rounded-xl ios-shadow border border-surface-variant overflow-hidden">
+<div class="p-6 border-b border-surface-variant flex justify-between items-center">
+<h3 class="font-title-md text-title-md text-primary">Active Table</h3>
+<div class="flex items-center gap-2">
+<span class="w-2 h-2 rounded-full bg-on-tertiary-container"></span>
+<span class="text-label-caps text-on-tertiary-container">LIVE</span>
+</div>
+</div>
+<div class="p-6">
+<div class="overflow-x-auto">
+<table class="w-full text-left">
+<thead>
+<tr class="text-label-caps text-secondary border-b border-surface-variant">
+<th class="pb-4 font-bold">PLAYER</th>
+<th class="pb-4 font-bold">BUY-IN</th>
+<th class="pb-4 font-bold">RE-BUYS</th>
+<th class="pb-4 font-bold text-right">NET</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-surface-variant">
+<tr class="hover:bg-surface-container-low transition-colors">
+<td class="py-4 flex items-center gap-3">
+<div class="w-8 h-8 rounded-full bg-secondary-container flex items-center justify-center text-xs font-bold">JD</div>
+<span class="font-bold text-primary">John Doe</span>
+</td>
+<td class="py-4 font-mono-data text-primary">$200</td>
+<td class="py-4 font-mono-data text-secondary">0</td>
+<td class="py-4 font-mono-data text-right text-on-tertiary-container">+$450</td>
+</tr>
+<tr class="hover:bg-surface-container-low transition-colors">
+<td class="py-4 flex items-center gap-3">
+<div class="w-8 h-8 rounded-full bg-outline-variant flex items-center justify-center text-xs font-bold">MS</div>
+<span class="font-bold text-primary">Mark Smith</span>
+</td>
+<td class="py-4 font-mono-data text-primary">$200</td>
+<td class="py-4 font-mono-data text-secondary">1</td>
+<td class="py-4 font-mono-data text-right text-error">-$120</td>
+</tr>
+<tr class="hover:bg-surface-container-low transition-colors">
+<td class="py-4 flex items-center gap-3">
+<div class="w-8 h-8 rounded-full bg-primary-fixed flex items-center justify-center text-xs font-bold">AL</div>
+<span class="font-bold text-primary">Alice L.</span>
+</td>
+<td class="py-4 font-mono-data text-primary">$200</td>
+<td class="py-4 font-mono-data text-secondary">0</td>
+<td class="py-4 font-mono-data text-right text-primary">0</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+</section>
+</main>
+<!-- BottomNavBar -->
+<nav class="fixed bottom-0 w-full z-50 bg-surface/60 backdrop-blur-xl border-t border-surface-variant flex justify-around items-center px-4 pb-8 pt-2">
+<a class="flex flex-col items-center justify-center text-primary font-bold active:scale-90 transition-all duration-200" href="#">
+<span class="material-symbols-outlined text-primary mb-1" style="font-variation-settings: 'FILL' 1;">grid_view</span>
+<span class="font-label-caps text-label-caps">Table</span>
+</a>
+<a class="flex flex-col items-center justify-center text-secondary hover:bg-secondary-container/50 active:scale-90 transition-all duration-200 rounded-lg px-4 py-1" href="#">
+<span class="material-symbols-outlined mb-1">payments</span>
+<span class="font-label-caps text-label-caps">Ledger</span>
+</a>
+<a class="flex flex-col items-center justify-center text-secondary hover:bg-secondary-container/50 active:scale-90 transition-all duration-200 rounded-lg px-4 py-1" href="#">
+<span class="material-symbols-outlined mb-1">leaderboard</span>
+<span class="font-label-caps text-label-caps">Rankings</span>
+</a>
+<a class="flex flex-col items-center justify-center text-secondary hover:bg-secondary-container/50 active:scale-90 transition-all duration-200 rounded-lg px-4 py-1" href="#">
+<span class="material-symbols-outlined mb-1">settings</span>
+<span class="font-label-caps text-label-caps">Settings</span>
+</a>
+</nav>
+<!-- FAB (Floating Action Button) - Contextual for Dashboard/Table -->
+<div class="fixed bottom-24 right-6 md:right-gutter">
+<button class="w-14 h-14 bg-primary text-on-primary rounded-full flex items-center justify-center shadow-lg active:scale-95 transition-transform">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">add</span>
+</button>
+</div>
+<script>
+        // Micro-interaction for buttons
+        document.querySelectorAll('button').forEach(button => {
+            button.addEventListener('touchstart', function() {
+                this.classList.add('scale-95');
+            });
+            button.addEventListener('touchend', function() {
+                this.classList.remove('scale-95');
+            });
+        });
+
+        // Simple Active State Logic for Navigation
+        const navLinks = document.querySelectorAll('nav a');
+        navLinks.forEach(link => {
+            link.addEventListener('click', function(e) {
+                navLinks.forEach(l => {
+                    l.classList.remove('text-primary', 'font-bold');
+                    l.classList.add('text-secondary');
+                    const icon = l.querySelector('.material-symbols-outlined');
+                    if (icon) icon.style.fontVariationSettings = "'FILL' 0";
+                });
+                this.classList.remove('text-secondary');
+                this.classList.add('text-primary', 'font-bold');
+                const icon = this.querySelector('.material-symbols-outlined');
+                if (icon) icon.style.fontVariationSettings = "'FILL' 1";
+            });
+        });
+    </script>
+</body></html>
