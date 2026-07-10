@@ -1,5 +1,3 @@
-import { format } from "date-fns"
-import { ptBR } from "date-fns/locale"
 
 interface SessionEvent {
   id: string
@@ -29,7 +27,11 @@ export function SessionLogConsole({ events }: SessionLogConsoleProps) {
         {events.map((ev) => (
           <div key={ev.id} className="flex gap-4 items-start border-b border-[#222] pb-2 last:border-0 last:pb-0">
             <span className="text-[#666] shrink-0">
-              [{format(ev.timestamp, "HH:mm")}]
+              [{new Intl.DateTimeFormat('pt-BR', {
+                timeZone: 'America/Sao_Paulo',
+                hour: '2-digit',
+                minute: '2-digit',
+              }).format(new Date(ev.timestamp))}]
             </span>
             <span className="text-green-400">
               {ev.message}
