@@ -67,6 +67,7 @@ export default async function CaixaPage() {
           <h2 className="text-title-md text-primary mb-4">Histórico de Mesas</h2>
           
           <HistoryListClient 
+            currentUserRole={sessionUser.role}
             sessions={sessions.map(s => ({
               id: s.id,
               name: s.name,

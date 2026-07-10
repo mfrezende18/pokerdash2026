@@ -14,11 +14,13 @@ interface BasicSession {
 
 interface HistoryListClientProps {
   sessions: BasicSession[]
+  currentUserRole?: string
 }
 
-export function HistoryListClient({ sessions }: HistoryListClientProps) {
+export function HistoryListClient({ sessions, currentUserRole }: HistoryListClientProps) {
   const [selectedSessionId, setSelectedSessionId] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
+  const [isDeleting, setIsDeleting] = useState(false)
   const [detailedSession, setDetailedSession] = useState<any | null>(null)
 
   const openModal = async (id: string) => {
@@ -37,6 +39,32 @@ export function HistoryListClient({ sessions }: HistoryListClientProps) {
   const closeModal = () => {
     setSelectedSessionId(null)
     setDetailedSession(null)
+  }
+
+  const handleDelete = async () => {
+    if (!selectedSessionId) return
+    if (!window.confirm("Tem certeza que deseja apagar esta mesa do Histórico? Toda a matemática das planilhas será ajustada automaticamente.")) {
+      return
+    }
+
+    setIsDeleting(true)
+    try {
+      const res = await fetch(`/api/sessions/${selectedSessionId}`, {
+        method: "DELETE",
+      })
+
+      if (res.ok) {
+        closeModal()
+        window.location.reload()
+      } else {
+        const data = await res.json()
+        alert(data.error || "Erro ao apagar mesa")
+      }
+    } catch (e) {
+      alert("Erro de conexão")
+    } finally {
+      setIsDeleting(false)
+    }
   }
 
   // Se já buscou os dados, agrupar por jogador
@@ -112,12 +140,24 @@ export function HistoryListClient({ sessions }: HistoryListClientProps) {
             {/* Header Modal */}
             <div className="flex items-center justify-between p-5 border-b border-surface-variant/20">
               <h2 className="text-title-md text-primary">Detalhes da Sessão</h2>
-              <button 
-                onClick={closeModal}
-                className="w-10 h-10 rounded-full flex items-center justify-center text-secondary hover:bg-surface-variant transition-colors"
-              >
-                <span className="material-symbols-outlined">close</span>
-              </button>
+              <div className="flex items-center gap-3">
+                {currentUserRole === "ADMIN1" && (
+                  <button 
+                    onClick={handleDelete}
+                    disabled={isDeleting}
+                    className="text-error bg-error/10 hover:bg-error/20 px-3 py-1.5 rounded-lg flex items-center gap-1 transition-colors font-bold text-xs disabled:opacity-50"
+                  >
+                    <span className="material-symbols-outlined text-[16px]">delete</span>
+                    {isDeleting ? "Apagando..." : "Apagar Jogo"}
+                  </button>
+                )}
+                <button 
+                  onClick={closeModal}
+                  className="w-10 h-10 rounded-full flex items-center justify-center text-secondary hover:bg-surface-variant transition-colors"
+                >
+                  <span className="material-symbols-outlined">close</span>
+                </button>
+              </div>
             </div>
 
             {/* Conteúdo Modal */}
