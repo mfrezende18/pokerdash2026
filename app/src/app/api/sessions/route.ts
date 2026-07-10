@@ -20,25 +20,36 @@ export async function GET() {
   }
 }
 
+import { newSessionSchema } from "@/lib/validations"
+import { successResponse, errorResponse, zodErrorResponse } from "@/lib/api-response"
+import { z } from "zod"
+
 export async function POST(request: NextRequest) {
   try {
     const sessionUser = await getAuthSession()
 
     if (!sessionUser || (sessionUser.role !== "ADMIN1" && sessionUser.role !== "ADMIN2")) {
-      return NextResponse.json({ error: "Sem permissão" }, { status: 403 })
+      return errorResponse("Sem permissão", 403)
     }
 
     const body = await request.json()
-    const { name, blinds, rakeType, rakePercent, rakeFixed } = body
-
-    if (!name) {
-      return NextResponse.json(
-        { error: "name é obrigatório" },
-        { status: 400 }
-      )
+    
+    let parsedBody
+    try {
+      parsedBody = newSessionSchema.parse({
+        ...body,
+        rakePercent: body.rakePercent ? parseFloat(body.rakePercent) : undefined,
+        rakeFixed: body.rakeFixed ? parseFloat(body.rakeFixed) : undefined,
+        createdById: sessionUser.id
+      })
+    } catch (e) {
+      if (e instanceof z.ZodError) {
+        return zodErrorResponse(e)
+      }
+      return errorResponse("Dados inválidos", 400)
     }
 
-    const createdById = sessionUser.id
+    const { name, blinds, rakeType, rakePercent, rakeFixed, createdById } = parsedBody
 
     // Check for existing active session
     const existingActive = await prisma.session.findFirst({
@@ -46,10 +57,7 @@ export async function POST(request: NextRequest) {
     })
 
     if (existingActive) {
-      return NextResponse.json(
-        { error: "Já existe uma sessão ativa. Feche-a primeiro." },
-        { status: 400 }
-      )
+      return errorResponse("Já existe uma sessão ativa. Feche-a primeiro.", 400)
     }
 
     const session = await prisma.session.create({
@@ -57,15 +65,15 @@ export async function POST(request: NextRequest) {
         name,
         blinds: blinds || "1/2",
         rakeType: rakeType || "NONE",
-        rakePercent: rakePercent ? parseFloat(rakePercent) : 0,
-        rakeFixed: rakeFixed ? parseFloat(rakeFixed) : 0,
+        rakePercent,
+        rakeFixed,
         createdById,
       },
     })
 
-    return NextResponse.json(session, { status: 201 })
+    return successResponse(session, 201)
   } catch (error) {
     console.error("Erro ao criar sessão:", error)
-    return NextResponse.json({ error: "Erro interno" }, { status: 500 })
+    return errorResponse("Erro interno", 500)
   }
 }

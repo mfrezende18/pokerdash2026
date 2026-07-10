@@ -1,5 +1,8 @@
-import { NextRequest, NextResponse } from "next/server"
+import { NextRequest } from "next/server"
 import { prisma } from "@/lib/db"
+import { cashOutSchema } from "@/lib/validations"
+import { successResponse, errorResponse, zodErrorResponse } from "@/lib/api-response"
+import { z } from "zod"
 
 export async function POST(
   request: NextRequest,
@@ -8,14 +11,21 @@ export async function POST(
   try {
     const { id } = await params
     const body = await request.json()
-    const { playerId, chipValue } = body
-
-    if (!playerId || chipValue === undefined) {
-      return NextResponse.json(
-        { error: "playerId e chipValue são obrigatórios" },
-        { status: 400 }
-      )
+    
+    let parsedBody
+    try {
+      parsedBody = cashOutSchema.parse({
+        ...body,
+        chipValue: parseFloat(body.chipValue)
+      })
+    } catch (e) {
+      if (e instanceof z.ZodError) {
+        return zodErrorResponse(e)
+      }
+      return errorResponse("Dados inválidos", 400)
     }
+
+    const { playerId, chipValue } = parsedBody
 
     // Check session
     const session = await prisma.session.findUnique({
@@ -23,14 +33,20 @@ export async function POST(
     })
 
     if (!session) {
-      return NextResponse.json({ error: "Sessão não encontrada" }, { status: 404 })
+      return errorResponse("Sessão não encontrada", 404)
     }
 
     if (session.status === "CLOSED") {
-      return NextResponse.json(
-        { error: "Sessão já fechada. Dados são imutáveis." },
-        { status: 403 }
-      )
+      return errorResponse("Sessão já fechada. Dados são imutáveis.", 403)
+    }
+
+    // Check if already cashed out to avoid duplicate cashouts
+    const existingCashOut = await prisma.cashOut.findFirst({
+      where: { sessionId: id, playerId },
+    })
+
+    if (existingCashOut) {
+      return errorResponse("Jogador já fez cash-out nesta sessão", 400)
     }
 
     // Calculate total buy-ins for player
@@ -40,32 +56,21 @@ export async function POST(
     const totalBuyIn = playerBuyIns.reduce((sum, b) => sum + b.amount, 0)
 
     // Calculate net result
-    const netResult = parseFloat(chipValue) - totalBuyIn
-
-    // Check if already cashed out
-    const existingCashOut = await prisma.cashOut.findFirst({
-      where: { sessionId: id, playerId },
-    })
-
-    if (existingCashOut) {
-      return NextResponse.json(
-        { error: "Jogador já fez cash-out nesta sessão" },
-        { status: 400 }
-      )
-    }
+    const netResult = chipValue - totalBuyIn
 
     const cashOut = await prisma.cashOut.create({
       data: {
         sessionId: id,
         playerId,
-        chipValue: parseFloat(chipValue),
+        chipValue,
         netResult,
       },
     })
 
-    return NextResponse.json(cashOut, { status: 201 })
+    return successResponse(cashOut, 201)
   } catch (error) {
     console.error("Erro ao processar cash-out:", error)
-    return NextResponse.json({ error: "Erro interno" }, { status: 500 })
+    return errorResponse("Erro interno", 500)
   }
 }
+

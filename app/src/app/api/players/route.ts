@@ -1,5 +1,8 @@
 import { NextRequest, NextResponse } from "next/server"
 import { prisma } from "@/lib/db"
+import { playerSchema } from "@/lib/validations"
+import { successResponse, errorResponse, zodErrorResponse } from "@/lib/api-response"
+import { z } from "zod"
 
 export async function GET() {
   try {
@@ -18,32 +21,40 @@ export async function GET() {
       },
     })
 
-    return NextResponse.json(players)
+    return successResponse(players)
   } catch (error) {
     console.error("Erro ao listar jogadores:", error)
-    return NextResponse.json({ error: "Erro interno" }, { status: 500 })
+    return errorResponse("Erro interno", 500)
   }
 }
 
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json()
-    const { name } = body
-
-    if (!name || !name.trim()) {
-      return NextResponse.json({ error: "Nome é obrigatório" }, { status: 400 })
+    
+    let parsedBody
+    try {
+      parsedBody = playerSchema.parse(body)
+    } catch (e) {
+      if (e instanceof z.ZodError) {
+        return zodErrorResponse(e)
+      }
+      return errorResponse("Dados inválidos", 400)
     }
+
+    const { name } = parsedBody
 
     const player = await prisma.user.create({
       data: {
-        name: name.trim(),
+        name,
         role: "USER",
       },
     })
 
-    return NextResponse.json(player, { status: 201 })
+    return successResponse(player, 201)
   } catch (error) {
     console.error("Erro ao criar jogador:", error)
-    return NextResponse.json({ error: "Erro interno" }, { status: 500 })
+    return errorResponse("Erro interno", 500)
   }
 }
+

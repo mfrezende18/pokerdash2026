@@ -22,6 +22,7 @@ model User {
   phone             String?   @unique
   pixKey            String?
   passwordHash      String?
+  requirePasswordChange Boolean @default(false)
   role              String    @default("USER") // ADMIN1, ADMIN2, USER
   avatarUrl         String?
   inviteToken       String?   @unique
@@ -65,7 +66,7 @@ model BuyIn {
   type      String   @default("INITIAL") // INITIAL, REBUY
   createdAt DateTime @default(now())
 
-  session   Session  @relation(fields: [sessionId], references: [id])
+  session   Session  @relation(fields: [sessionId], references: [id], onDelete: Cascade)
   player    User     @relation(fields: [playerId], references: [id])
 
   @@index([sessionId])
@@ -80,7 +81,7 @@ model CashOut {
   netResult Float
   createdAt DateTime @default(now())
 
-  session   Session  @relation(fields: [sessionId], references: [id])
+  session   Session  @relation(fields: [sessionId], references: [id], onDelete: Cascade)
   player    User     @relation(fields: [playerId], references: [id])
 
   @@index([sessionId])

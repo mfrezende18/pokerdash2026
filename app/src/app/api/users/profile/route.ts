@@ -1,17 +1,31 @@
 import { NextResponse } from "next/server"
 import { prisma } from "@/lib/db"
 import { getAuthSession } from "@/lib/auth"
+import { profileSchema } from "@/lib/validations"
+import { successResponse, errorResponse, zodErrorResponse } from "@/lib/api-response"
+import { z } from "zod"
 
 export async function PATCH(request: Request) {
   try {
     const sessionUser = await getAuthSession()
     
     if (!sessionUser) {
-      return NextResponse.json({ error: "Não autenticado" }, { status: 401 })
+      return errorResponse("Não autenticado", 401)
     }
 
     const body = await request.json()
-    const { pixKey, phone, avatarUrl } = body
+    
+    let parsedBody
+    try {
+      parsedBody = profileSchema.parse(body)
+    } catch (e) {
+      if (e instanceof z.ZodError) {
+        return zodErrorResponse(e)
+      }
+      return errorResponse("Dados inválidos", 400)
+    }
+
+    const { pixKey, phone, avatarUrl } = parsedBody
 
     const updatedUser = await prisma.user.update({
       where: { id: sessionUser.id },
@@ -22,9 +36,10 @@ export async function PATCH(request: Request) {
       }
     })
 
-    return NextResponse.json({ success: true, user: updatedUser })
+    return successResponse({ success: true, user: updatedUser })
   } catch (error) {
     console.error("Profile update error:", error)
-    return NextResponse.json({ error: "Erro interno ao atualizar perfil" }, { status: 500 })
+    return errorResponse("Erro interno ao atualizar perfil", 500)
   }
 }
+

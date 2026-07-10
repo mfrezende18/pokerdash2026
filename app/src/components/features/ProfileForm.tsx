@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useTransition } from "react"
 import { useRouter } from "next/navigation"
 
 interface ProfileFormProps {
@@ -19,6 +19,7 @@ export function ProfileForm({ initialPhone, initialPixKey, initialAvatar, name }
   const [avatar, setAvatar] = useState(initialAvatar || "")
   const [isEditing, setIsEditing] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
+  const [isPending, startTransition] = useTransition()
   const router = useRouter()
 
   const handleSave = async () => {
@@ -32,7 +33,9 @@ export function ProfileForm({ initialPhone, initialPixKey, initialAvatar, name }
 
       if (res.ok) {
         setIsEditing(false)
-        router.refresh()
+        startTransition(() => {
+          router.refresh()
+        })
       } else {
         alert("Erro ao salvar perfil")
       }
@@ -46,8 +49,11 @@ export function ProfileForm({ initialPhone, initialPixKey, initialAvatar, name }
 
   const userInitial = name.charAt(0).toUpperCase()
 
+  const cleanAvatar = avatar.trim()
+  const isUrl = cleanAvatar.startsWith('http') || cleanAvatar.startsWith('/')
+
   return (
-    <div className="bg-surface-container-lowest rounded-2xl p-6 ios-shadow border border-surface-variant/20 mb-8">
+    <div className="bg-surface-container-lowest rounded-2xl p-6 ios-shadow border border-surface-variant/20 mb-8 overflow-hidden">
       <div className="flex justify-between items-start mb-6">
         <h3 className="text-title-md text-primary font-bold">Dados Pessoais</h3>
         <button 
@@ -62,8 +68,16 @@ export function ProfileForm({ initialPhone, initialPixKey, initialAvatar, name }
       <div className="flex flex-col md:flex-row gap-8 items-start">
         {/* Profile Emoji / Initial */}
         <div className="flex flex-col items-center gap-3">
-          <div className="w-24 h-24 rounded-full bg-secondary-container flex items-center justify-center text-4xl border-4 border-surface-container-lowest shadow-md">
-            {avatar ? avatar : <span className="font-bold text-on-secondary-container">{userInitial}</span>}
+          <div className="w-24 h-24 min-w-[6rem] rounded-full bg-secondary-container flex items-center justify-center border-4 border-surface-container-lowest shadow-md overflow-hidden relative">
+            {cleanAvatar ? (
+              isUrl ? (
+                <img src={cleanAvatar} alt="Avatar" className="w-full h-full object-cover absolute inset-0" />
+              ) : (
+                <span className="text-4xl">{cleanAvatar}</span>
+              )
+            ) : (
+              <span className="font-bold text-4xl text-on-secondary-container">{userInitial}</span>
+            )}
           </div>
           {isEditing && (
             <div className="flex flex-wrap max-w-[200px] gap-2 justify-center mt-2">

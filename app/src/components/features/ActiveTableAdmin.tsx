@@ -1,7 +1,8 @@
 "use client"
 
 import { cn, formatCurrency, getInitials } from "@/lib/utils"
-import { useState } from "react"
+import { useState, useTransition } from "react"
+import { useRouter } from "next/navigation"
 import Image from "next/image"
 
 interface PlayerSummary {
@@ -33,22 +34,31 @@ export function ActiveTableAdmin({
   const [selectedPlayer, setSelectedPlayer] = useState("")
   const [amount, setAmount] = useState("")
   const [isSubmitting, setIsSubmitting] = useState(false)
+  const [isPending, startTransition] = useTransition()
+  const router = useRouter()
 
   const handleBuyIn = async (type: "INITIAL" | "REBUY") => {
     if (!selectedPlayer || !amount || !sessionId) return
     setIsSubmitting(true)
+    
+    // Guardar os valores e fechar o modal instantaneamente para UX
+    const currentPlayer = selectedPlayer
+    const currentAmount = amount
+    closeModals()
 
     try {
       await fetch(`/api/sessions/${sessionId}/buyin`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          playerId: selectedPlayer,
-          amount: parseFloat(amount),
+          playerId: currentPlayer,
+          amount: parseFloat(currentAmount),
           type,
         }),
       })
-      window.location.reload()
+      startTransition(() => {
+        router.refresh()
+      })
     } catch (error) {
       console.error("Erro ao registrar buy-in:", error)
     } finally {
@@ -60,16 +70,22 @@ export function ActiveTableAdmin({
     if (!selectedPlayer || !amount || !sessionId) return
     setIsSubmitting(true)
 
+    const currentPlayer = selectedPlayer
+    const currentAmount = amount
+    closeModals()
+
     try {
       await fetch(`/api/sessions/${sessionId}/cashout`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          playerId: selectedPlayer,
-          chipValue: parseFloat(amount),
+          playerId: currentPlayer,
+          chipValue: parseFloat(currentAmount),
         }),
       })
-      window.location.reload()
+      startTransition(() => {
+        router.refresh()
+      })
     } catch (error) {
       console.error("Erro ao processar cash-out:", error)
     } finally {

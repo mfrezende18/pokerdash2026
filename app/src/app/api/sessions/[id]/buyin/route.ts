@@ -1,5 +1,8 @@
-import { NextRequest, NextResponse } from "next/server"
+import { NextRequest } from "next/server"
 import { prisma } from "@/lib/db"
+import { buyInSchema } from "@/lib/validations"
+import { successResponse, errorResponse, zodErrorResponse } from "@/lib/api-response"
+import { z } from "zod"
 
 export async function POST(
   request: NextRequest,
@@ -8,14 +11,21 @@ export async function POST(
   try {
     const { id } = await params
     const body = await request.json()
-    const { playerId, amount, type } = body
-
-    if (!playerId || !amount || !type) {
-      return NextResponse.json(
-        { error: "playerId, amount e type são obrigatórios" },
-        { status: 400 }
-      )
+    
+    let parsedBody
+    try {
+      parsedBody = buyInSchema.parse({
+        ...body,
+        amount: parseFloat(body.amount)
+      })
+    } catch (e) {
+      if (e instanceof z.ZodError) {
+        return zodErrorResponse(e)
+      }
+      return errorResponse("Dados inválidos", 400)
     }
+
+    const { playerId, amount, type } = parsedBody
 
     // Check session exists and is active
     const session = await prisma.session.findUnique({
@@ -23,28 +33,26 @@ export async function POST(
     })
 
     if (!session) {
-      return NextResponse.json({ error: "Sessão não encontrada" }, { status: 404 })
+      return errorResponse("Sessão não encontrada", 404)
     }
 
     if (session.status === "CLOSED") {
-      return NextResponse.json(
-        { error: "Sessão já fechada. Dados são imutáveis." },
-        { status: 403 }
-      )
+      return errorResponse("Sessão já fechada. Dados são imutáveis.", 403)
     }
 
     const buyIn = await prisma.buyIn.create({
       data: {
         sessionId: id,
         playerId,
-        amount: parseFloat(amount),
+        amount,
         type,
       },
     })
 
-    return NextResponse.json(buyIn, { status: 201 })
+    return successResponse(buyIn, 201)
   } catch (error) {
     console.error("Erro ao registrar buy-in:", error)
-    return NextResponse.json({ error: "Erro interno" }, { status: 500 })
+    return errorResponse("Erro interno", 500)
   }
 }
+

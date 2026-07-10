@@ -1,6 +1,9 @@
 import type { Metadata } from "next";
 import { Plus_Jakarta_Sans, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
+import { getAuthSession } from "@/lib/auth";
+import { ForcePasswordChangeModal } from "@/components/features/ForcePasswordChangeModal";
+import { SupabaseRealtimeProvider } from "@/components/providers/SupabaseRealtimeProvider";
 
 const plusJakarta = Plus_Jakarta_Sans({
   variable: "--font-plus-jakarta",
@@ -32,11 +35,14 @@ export const metadata: Metadata = {
   },
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const session = await getAuthSession();
+  const requiresPasswordChange = session?.requirePasswordChange === true;
+
   return (
     <html
       lang="pt-BR"
@@ -45,8 +51,13 @@ export default function RootLayout({
       <head>
         <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet" />
       </head>
-      <body className="min-h-screen bg-background text-on-background antialiased pb-24">
-        {children}
+      <body className="min-h-screen bg-background text-on-background antialiased pb-24 relative">
+        <SupabaseRealtimeProvider>
+          {requiresPasswordChange && <ForcePasswordChangeModal />}
+          <div className={requiresPasswordChange ? "pointer-events-none blur-sm" : ""}>
+            {children}
+          </div>
+        </SupabaseRealtimeProvider>
       </body>
     </html>
   );

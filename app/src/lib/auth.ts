@@ -10,6 +10,7 @@ export interface UserPayload {
   role: string
   name?: string
   avatarUrl?: string | null
+  requirePasswordChange?: boolean
 }
 
 export async function signToken(payload: UserPayload): Promise<string> {

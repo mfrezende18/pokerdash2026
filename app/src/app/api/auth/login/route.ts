@@ -1,3 +1,4 @@
+
 import { NextResponse } from "next/server"
 import { prisma } from "@/lib/db"
 import bcrypt from "bcryptjs"
@@ -39,7 +40,11 @@ export async function POST(request: Request) {
       )
     }
 
-    const token = await signToken({ id: user.id, role: user.role })
+    const token = await signToken({ 
+      id: user.id, 
+      role: user.role,
+      requirePasswordChange: user.requirePasswordChange 
+    })
 
     const cookieStore = await cookies()
     cookieStore.set("session_token", token, {

@@ -77,21 +77,26 @@ export function InteractiveTable({ sessionInfo, activePlayers, allUsers, isAdmin
 
   const handleAddPlayer = async () => {
     if (!selectedUserId || buyInAmount <= 0) return
-    await addPlayerToSession(sessionInfo.id, selectedUserId, buyInAmount)
+    const userId = selectedUserId
+    const amount = buyInAmount
     closePopover()
     setSelectedUserId("")
+    await addPlayerToSession(sessionInfo.id, userId, amount)
   }
 
   const handleAddRebuy = async () => {
     if (!popoverState.player || buyInAmount <= 0) return
-    await addRebuyToSession(sessionInfo.id, popoverState.player.id, buyInAmount)
+    const playerId = popoverState.player.id
+    const amount = buyInAmount
     closePopover()
+    await addRebuyToSession(sessionInfo.id, playerId, amount)
   }
 
   const handleRemovePlayer = async () => {
     if (!popoverState.player) return
-    await removePlayerFromSession(sessionInfo.id, popoverState.player.id)
+    const playerId = popoverState.player.id
     closePopover()
+    await removePlayerFromSession(sessionInfo.id, playerId)
   }
 
   // Filtrar usuários que já estão sentados

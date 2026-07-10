@@ -1,3 +1,4 @@
+import type { Metadata } from "next"
 import { prisma } from "@/lib/db"
 import { TopAppBar } from "@/components/layout/TopAppBar"
 import { BottomNavBar } from "@/components/layout/BottomNavBar"
@@ -79,14 +80,15 @@ async function getUserData(userId: string) {
   }
 }
 
-export default async function PlayerStatsPage({ params }: { params: { id: string } }) {
+export default async function PlayerStatsPage({ params }: { params: Promise<{ id: string }> }) {
   const sessionUser = await getAuthSession()
   
   if (!sessionUser) {
     redirect("/login")
   }
 
-  const data = await getUserData(params.id)
+  const { id } = await params
+  const data = await getUserData(id)
 
   if (!data || data.user.role === "DELETED") {
     redirect("/")

@@ -68,9 +68,9 @@ export function ChampionCard({ champion }: ChampionCardProps) {
           ({champion.sessionName.replace('Sessão Oficial ', '')})
         </p>
 
-        <div className="mt-2 bg-green-500/10 px-4 py-2 rounded-full border border-green-500/20">
-          <p className="text-green-600 font-bold text-lg">
-            +{new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(champion.netResult)}
+        <div className={`mt-2 px-4 py-2 rounded-full border ${champion.netResult >= 0 ? 'bg-green-500/10 border-green-500/20' : 'bg-red-500/10 border-red-500/20'}`}>
+          <p className={`font-bold text-lg ${champion.netResult >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+            {champion.netResult > 0 ? "+" : ""}{new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(champion.netResult)}
           </p>
         </div>
       </div>

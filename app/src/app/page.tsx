@@ -7,13 +7,24 @@ import { ChampionCard } from "@/components/features/ChampionCard"
 import { RankingList } from "@/components/features/RankingList"
 import { EventsSection } from "@/components/features/EventsSection"
 import { HighlightCarousel } from "@/components/features/HighlightCarousel"
+import { InteractiveTable } from "@/components/features/InteractiveTable"
+import { SessionLogConsole } from "@/components/features/SessionLogConsole"
+import { getAuthSession } from "@/lib/auth"
+import { formatCurrency } from "@/lib/utils"
+import { Suspense } from "react"
+import { unstable_cache } from "next/cache"
 
 async function getActiveSession() {
   const session = await prisma.session.findFirst({
     where: { status: "ACTIVE" },
     include: {
-      buyIns: { include: { player: true }, orderBy: { createdAt: "asc" } },
-      cashOuts: { include: { player: true } },
+      buyIns: { 
+        include: { player: { select: { id: true, name: true, avatarUrl: true } } }, 
+        orderBy: { createdAt: "asc" } 
+      },
+      cashOuts: { 
+        include: { player: { select: { id: true, name: true, avatarUrl: true } } } 
+      },
     },
     orderBy: { startedAt: "desc" },
   })
@@ -88,149 +99,177 @@ async function getActiveSession() {
   }
 }
 
-async function getAllPlayers() {
-  return prisma.user.findMany({
-    orderBy: { name: "asc" },
-  })
-}
+const getAllPlayersCached = unstable_cache(
+  async () => {
+    return prisma.user.findMany({
+      select: { id: true, name: true, avatarUrl: true },
+      orderBy: { name: "asc" },
+    })
+  },
+  ['all-players'],
+  { revalidate: 3600, tags: ['players'] }
+)
 
-async function getLastChampion() {
-  const lastClosedSession = await prisma.session.findFirst({
-    where: { status: "CLOSED" },
-    orderBy: { closedAt: "desc" },
-    include: {
-      cashOuts: {
-        include: { player: true },
-        orderBy: { netResult: "desc" },
-        take: 1,
+const getLastChampionCached = unstable_cache(
+  async () => {
+    const lastClosedSession = await prisma.session.findFirst({
+      where: { status: "CLOSED" },
+      orderBy: { closedAt: "desc" },
+      include: {
+        cashOuts: {
+          include: { player: { select: { name: true, avatarUrl: true } } },
+          orderBy: { netResult: "desc" },
+          take: 1,
+        },
       },
-    },
-  })
+    })
+    if (!lastClosedSession || lastClosedSession.cashOuts.length === 0) return null
+    const winner = lastClosedSession.cashOuts[0]
+    return {
+      name: winner.player.name,
+      avatarUrl: winner.player.avatarUrl,
+      sessionName: lastClosedSession.name,
+      netResult: winner.netResult,
+    }
+  },
+  ['last-champion'],
+  { revalidate: 60, tags: ['sessions'] }
+)
 
-  if (!lastClosedSession || lastClosedSession.cashOuts.length === 0) return null
-
-  const winner = lastClosedSession.cashOuts[0]
-  return {
-    name: winner.player.name,
-    avatarUrl: winner.player.avatarUrl,
-    sessionName: lastClosedSession.name,
-    netResult: winner.netResult,
-  }
-}
-
-async function getLastSessionRankings() {
-  const lastClosedSession = await prisma.session.findFirst({
-    where: { status: "CLOSED" },
-    orderBy: { closedAt: "desc" },
-    include: {
-      cashOuts: {
-        include: { player: true },
-        orderBy: { netResult: "desc" },
+const getLastSessionRankingsCached = unstable_cache(
+  async () => {
+    const lastClosedSession = await prisma.session.findFirst({
+      where: { status: "CLOSED" },
+      orderBy: { closedAt: "desc" },
+      include: {
+        cashOuts: {
+          include: { player: { select: { id: true, name: true, avatarUrl: true } } },
+          orderBy: { netResult: "desc" },
+        },
       },
-    },
-  })
+    })
+    if (!lastClosedSession) return []
+    return lastClosedSession.cashOuts.map((cashOut) => ({
+      id: cashOut.player.id,
+      name: cashOut.player.name,
+      avatarUrl: cashOut.player.avatarUrl,
+      netResult: cashOut.netResult,
+    }))
+  },
+  ['last-rankings'],
+  { revalidate: 60, tags: ['sessions'] }
+)
 
-  if (!lastClosedSession) return []
+const getEventsCached = unstable_cache(
+  async () => {
+    return prisma.event.findMany({
+      where: { eventDate: { gte: new Date() } },
+      orderBy: { eventDate: "asc" },
+      take: 4,
+    })
+  },
+  ['events'],
+  { revalidate: 3600, tags: ['events'] }
+)
 
-  return lastClosedSession.cashOuts.map((cashOut) => ({
-    id: cashOut.player.id,
-    name: cashOut.player.name,
-    avatarUrl: cashOut.player.avatarUrl,
-    netResult: cashOut.netResult,
-  }))
-}
+const getHighlightsCached = unstable_cache(
+  async () => {
+    return prisma.highlight.findMany({
+      orderBy: { createdAt: "desc" },
+      take: 6,
+    })
+  },
+  ['highlights'],
+  { revalidate: 3600, tags: ['highlights'] }
+)
 
-async function getEvents() {
-  return prisma.event.findMany({
-    where: { eventDate: { gte: new Date() } },
-    orderBy: { eventDate: "asc" },
-    take: 4,
-  })
-}
 
-async function getHighlights() {
-  return prisma.highlight.findMany({
-    orderBy: { createdAt: "desc" },
-    take: 6,
-  })
-}
-
-import { InteractiveTable } from "@/components/features/InteractiveTable"
-import { SessionLogConsole } from "@/components/features/SessionLogConsole"
-import { getAuthSession } from "@/lib/auth"
-import { formatCurrency } from "@/lib/utils"
-
-export default async function HomePage() {
-  const [activeSession, champion, rankings, events, highlights, allUsers, sessionUser] =
+async function HomeContent({ sessionUser }: { sessionUser: any }) {
+  const [activeSession, champion, rankings, events, highlights, allUsers] =
     await Promise.all([
       getActiveSession(),
-      getLastChampion(),
-      getLastSessionRankings(),
-      getEvents(),
-      getHighlights(),
-      getAllPlayers(),
-      getAuthSession()
+      getLastChampionCached(),
+      getLastSessionRankingsCached(),
+      getEventsCached(),
+      getHighlightsCached(),
+      getAllPlayersCached(),
     ])
 
   const isAdmin = sessionUser?.role === "ADMIN1" || sessionUser?.role === "ADMIN2"
 
   return (
     <>
+      {activeSession ? (
+        <div className="flex flex-col">
+          <InteractiveTable
+            sessionInfo={{
+              id: activeSession.id,
+              name: activeSession.name,
+              totalPot: activeSession.totalPot,
+              playerCount: activeSession.playerCount,
+              startedAt: activeSession.startedAt,
+            }}
+            activePlayers={activeSession.activePlayersData}
+            allUsers={allUsers.map(u => ({ id: u.id, name: u.name }))}
+            isAdmin={isAdmin}
+          />
+          <div className="mt-6">
+            <SessionLogConsole events={activeSession.events} />
+          </div>
+        </div>
+      ) : (
+        <div className="bg-surface-container-lowest rounded-2xl p-10 text-center border border-surface-variant/20 apple-shadow">
+          <h2 className="text-headline-sm text-primary mb-2">Nenhuma mesa rolando</h2>
+          <p className="text-secondary mb-6">Inicie uma sessão para começar o jogo.</p>
+        </div>
+      )}
+
+      <div className="grid grid-cols-1 md:grid-cols-12 gap-6">
+        <div className="md:col-span-4">
+          <ChampionCard champion={champion} />
+        </div>
+        <div className="md:col-span-8">
+          <RankingList rankings={rankings} />
+        </div>
+      </div>
+
+      {events.length > 0 && <EventsSection events={events} />}
+
+      {highlights.length > 0 && (
+        <HighlightCarousel highlights={highlights} />
+      )}
+    </>
+  )
+}
+
+function HomeSkeleton() {
+  return (
+    <div className="animate-pulse space-y-10">
+      <div className="h-[400px] bg-surface-container-high rounded-3xl"></div>
+      <div className="grid grid-cols-1 md:grid-cols-12 gap-6">
+        <div className="md:col-span-4 h-64 bg-surface-container-high rounded-3xl"></div>
+        <div className="md:col-span-8 h-64 bg-surface-container-high rounded-3xl"></div>
+      </div>
+      <div className="h-48 bg-surface-container-high rounded-3xl"></div>
+    </div>
+  )
+}
+
+export default async function HomePage() {
+  const sessionUser = await getAuthSession()
+
+  return (
+    <>
       <TopAppBar
-        avatarUrl="https://lh3.googleusercontent.com/aida-public/AB6AXuC8UjX_u8I__Bh7iB_7uIBx856qATLZSDXJ12WmqaNeZKT80zYOJIGNll8-OJCheb_ExmJ5EKA_zyEXK666x7DEkSdB0smXqXX6o_mfBzuwlKb9pJOTx-5Pr3udJoyM8Nfzr0WVN4pu7INhyYS6NdPKLkszxGzEywPFNTgbj_Dq-tHFSpDERzo8-QgvyF64HtshfawhInRvqYoUHQcGSrZWMVggQssir_z6gScrLQSo79XJ-tLUgYkoqp95FFbHS8vOGeOFIXXK_QM"
+        avatarUrl={sessionUser?.avatarUrl ?? undefined}
       />
 
       <main className="max-w-[1200px] mx-auto px-4 md:px-6 mt-10 space-y-10">
-        {/* Mesa Interativa */}
-        {activeSession ? (
-          <div className="flex flex-col">
-            <InteractiveTable
-              sessionInfo={{
-                id: activeSession.id,
-                name: activeSession.name,
-                totalPot: activeSession.totalPot,
-                playerCount: activeSession.playerCount,
-                startedAt: activeSession.startedAt,
-              }}
-              activePlayers={activeSession.activePlayersData}
-              allUsers={allUsers}
-              isAdmin={isAdmin}
-            />
-            <div className="mt-6">
-              <SessionLogConsole events={activeSession.events} />
-            </div>
-          </div>
-        ) : (
-          <div className="bg-surface-container-lowest rounded-2xl p-10 text-center border border-surface-variant/20 apple-shadow">
-            <h2 className="text-headline-sm text-primary mb-2">Nenhuma mesa rolando</h2>
-            <p className="text-secondary mb-6">Inicie uma sessão para começar o jogo.</p>
-            {/* Aqui poderia entrar um botão de "Nova Sessão" se for admin */}
-          </div>
-        )}
-
-        {/* Bento Grid: Campeão + Rankings */}
-        <div className="grid grid-cols-1 md:grid-cols-12 gap-6">
-          {/* Último Campeão */}
-          <div className="md:col-span-4">
-            <ChampionCard champion={champion} />
-          </div>
-
-          {/* Ranking Global */}
-          <div className="md:col-span-8">
-            <RankingList rankings={rankings} />
-          </div>
-        </div>
-
-        {/* Próximos Eventos */}
-        {events.length > 0 && <EventsSection events={events} />}
-
-        {/* Destaques Carousel */}
-        {highlights.length > 0 && (
-          <HighlightCarousel highlights={highlights} />
-        )}
+        <Suspense fallback={<HomeSkeleton />}>
+          <HomeContent sessionUser={sessionUser} />
+        </Suspense>
       </main>
 
-      {/* Bottom Navigation */}
       <BottomNavBar role={sessionUser?.role} />
     </>
   )

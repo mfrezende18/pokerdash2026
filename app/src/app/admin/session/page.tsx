@@ -5,6 +5,7 @@ import { formatCurrency, formatDate } from "@/lib/utils"
 import { getAuthSession } from "@/lib/auth"
 import { NewSessionForm } from "./NewSessionForm"
 import { EditSessionModal } from "./EditSessionModal"
+import { DeleteSessionButton } from "./DeleteSessionButton"
 
 export const dynamic = "force-dynamic"
 
@@ -62,7 +63,10 @@ export default async function SessionPage() {
                   </div>
 
                   {isClosed && isAdmin1 && (
-                    <EditSessionModal session={session} />
+                    <div className="flex items-center">
+                      <EditSessionModal session={session} />
+                      <DeleteSessionButton sessionId={session.id} />
+                    </div>
                   )}
                 </div>
               </div>

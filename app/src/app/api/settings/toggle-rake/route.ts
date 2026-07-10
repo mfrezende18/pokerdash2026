@@ -8,11 +8,11 @@ export async function POST(request: Request) {
     
     // Apenas ADMIN1 e ADMIN2 podem alterar essa configuração
     if (sessionUser?.role !== "ADMIN1" && sessionUser?.role !== "ADMIN2") {
-      return NextResponse.redirect(new URL("/admin", request.url))
+      return NextResponse.json({ error: "Acesso negado" }, { status: 403 })
     }
 
-    const formData = await request.formData()
-    const currentValue = formData.get("currentValue") === "true"
+    const body = await request.json()
+    const { currentValue } = body
 
     const settings = await prisma.systemSettings.findFirst()
 
@@ -27,10 +27,9 @@ export async function POST(request: Request) {
       })
     }
 
-    // Redireciona de volta para o painel admin
-    return NextResponse.redirect(new URL("/admin", request.url), 303)
+    return NextResponse.json({ success: true, showRakeToUsers: !currentValue })
   } catch (error) {
     console.error("Toggle rake error:", error)
-    return NextResponse.redirect(new URL("/admin", request.url), 303)
+    return NextResponse.json({ error: "Erro interno no servidor" }, { status: 500 })
   }
 }

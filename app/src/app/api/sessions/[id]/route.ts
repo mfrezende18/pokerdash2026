@@ -60,3 +60,29 @@ export async function PATCH(
     return NextResponse.json({ error: "Erro interno" }, { status: 500 })
   }
 }
+
+import { getAuthSession } from "@/lib/auth"
+
+export async function DELETE(
+  request: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  try {
+    const sessionUser = await getAuthSession()
+    if (!sessionUser || sessionUser.role !== "ADMIN1") {
+      return NextResponse.json({ error: "Apenas Admin 1 pode apagar mesas" }, { status: 403 })
+    }
+
+    const { id } = await params
+    
+    // We rely on onDelete: Cascade to remove buy-ins and cash-outs.
+    await prisma.session.delete({
+      where: { id },
+    })
+
+    return NextResponse.json({ success: true })
+  } catch (error) {
+    console.error("Erro ao deletar sessão:", error)
+    return NextResponse.json({ error: "Erro interno" }, { status: 500 })
+  }
+}

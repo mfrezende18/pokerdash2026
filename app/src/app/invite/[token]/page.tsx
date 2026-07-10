@@ -3,13 +3,13 @@ import { notFound } from "next/navigation"
 import { InviteForm } from "./InviteForm"
 
 interface InvitePageProps {
-  params: {
+  params: Promise<{
     token: string
-  }
+  }>
 }
 
 export default async function InvitePage({ params }: InvitePageProps) {
-  const { token } = params
+  const { token } = await params
 
   const user = await prisma.user.findUnique({
     where: { inviteToken: token },

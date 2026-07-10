@@ -16,6 +16,7 @@ export async function proxy(request: NextRequest) {
     pathname.startsWith("/invite") ||
     pathname.startsWith("/_next") ||
     pathname.startsWith("/api/auth") ||
+    pathname.startsWith("/api/invite") ||
     pathname.includes("favicon") ||
     pathname.includes("fonts")
   ) {
@@ -52,7 +53,6 @@ export const config = {
   matcher: [
     /*
      * Match all request paths except for the ones starting with:
-     * - api (API routes - but we protected /api/sessions manually if needed)
      * - _next/static (static files)
      * - _next/image (image optimization files)
      * - favicon.ico (favicon file)
