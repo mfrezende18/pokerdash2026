@@ -23,11 +23,11 @@ async function getRankings() {
         id: true,
         name: true,
         avatarUrl: true,
-        cashOuts: { select: { netResult: true, sessionId: true } },
-        buyIns: { select: { amount: true, sessionId: true } }
+        cashOuts: { select: { netResult: true, sessionId: true }, where: { session: { status: "CLOSED" } } },
+        buyIns: { select: { amount: true, sessionId: true }, where: { session: { status: "CLOSED" } } }
       },
     }),
-    prisma.session.count()
+    prisma.session.count({ where: { status: "CLOSED" } })
   ])
 
   const halfSessions = totalSessionsCount / 2

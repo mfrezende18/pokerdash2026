@@ -39,9 +39,12 @@ async function getUserData(userId: string) {
 
   if (!user) return null
 
-  const totalInvested = user.buyIns.reduce((sum, b) => sum + b.amount, 0)
-  const totalProfit = user.cashOuts.reduce((sum, c) => sum + c.netResult, 0)
-  const totalSessions = new Set(user.buyIns.map((b) => b.sessionId)).size
+  const closedBuyIns = user.buyIns.filter((b) => b.session.status === "CLOSED")
+  const closedCashOuts = user.cashOuts.filter((c) => c.session.status === "CLOSED")
+
+  const totalInvested = closedBuyIns.reduce((sum, b) => sum + b.amount, 0)
+  const totalProfit = closedCashOuts.reduce((sum, c) => sum + c.netResult, 0)
+  const totalSessions = new Set(closedBuyIns.map((b) => b.sessionId)).size
   const roi = totalInvested > 0 ? (totalProfit / totalInvested) * 100 : 0
   const avgBuyInPerSession = totalSessions > 0 ? totalInvested / totalSessions : 0
 
