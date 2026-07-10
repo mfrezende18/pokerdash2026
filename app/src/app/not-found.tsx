@@ -3,7 +3,7 @@ import Link from "next/link"
 export default function NotFound() {
   return (
     <div className="min-h-screen bg-background flex items-center justify-center p-6">
-      <div className="bg-surface-container-lowest rounded-3xl p-10 apple-shadow border border-surface-variant/20 max-w-md w-full text-center animate-slide-up">
+      <div className="bg-surface-container-lowest rounded-3xl p-10 apple-shadow border border-surface-variant/20 max-w-[400px] w-full text-center animate-slide-up">
         <div className="w-20 h-20 bg-surface-container-high rounded-2xl mx-auto mb-6 flex items-center justify-center">
           <span className="material-symbols-outlined text-secondary text-4xl">search_off</span>
         </div>

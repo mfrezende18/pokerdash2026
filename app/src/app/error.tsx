@@ -15,7 +15,7 @@ export default function GlobalError({
 
   return (
     <div className="min-h-[60vh] flex items-center justify-center p-6">
-      <div className="bg-surface-container-lowest rounded-3xl p-10 apple-shadow border border-surface-variant/20 max-w-md w-full text-center">
+      <div className="bg-surface-container-lowest rounded-3xl p-10 apple-shadow border border-surface-variant/20 max-w-[400px] w-full text-center">
         <div className="w-16 h-16 bg-error-container rounded-2xl mx-auto mb-6 flex items-center justify-center">
           <span className="material-symbols-outlined text-error text-3xl">error</span>
         </div>
