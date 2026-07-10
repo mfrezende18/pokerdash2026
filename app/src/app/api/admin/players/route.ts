@@ -42,8 +42,8 @@ export async function PATCH(request: Request) {
   try {
     const sessionUser = await getAuthSession()
     
-    if (sessionUser?.role !== "ADMIN1") {
-      return NextResponse.json({ error: "Apenas o Admin Supremo pode alterar permissões" }, { status: 403 })
+    if (sessionUser?.role !== "ADMIN1" && sessionUser?.role !== "ADMIN2") {
+      return NextResponse.json({ error: "Sem permissão para alterar jogadores" }, { status: 403 })
     }
 
     const body = await request.json()
@@ -55,6 +55,10 @@ export async function PATCH(request: Request) {
 
     // Soft Delete (Ocultar jogador)
     if (action === "delete") {
+      if (sessionUser.role !== "ADMIN1") {
+        return NextResponse.json({ error: "Apenas o Admin 1 pode excluir jogadores" }, { status: 403 })
+      }
+      
       if (playerId === sessionUser.id) {
         return NextResponse.json({ error: "Você não pode excluir a si mesmo" }, { status: 400 })
       }
@@ -78,12 +82,16 @@ export async function PATCH(request: Request) {
 
     // Update Role
     if (newRole) {
-      const validRoles = ["ADMIN1", "ADMIN2", "USER"]
+      const validRoles = ["ADMIN1", "ADMIN2", "ADMIN3", "USER"]
       if (!validRoles.includes(newRole)) {
         return NextResponse.json({ error: "Role inválida" }, { status: 400 })
       }
 
-      if (playerId === sessionUser.id && newRole !== "ADMIN1") {
+      if (sessionUser.role === "ADMIN2" && newRole === "ADMIN1") {
+        return NextResponse.json({ error: "Admin 2 não pode promover para Admin 1" }, { status: 403 })
+      }
+
+      if (playerId === sessionUser.id && newRole !== sessionUser.role) {
         return NextResponse.json({ error: "Você não pode rebaixar a si mesmo" }, { status: 400 })
       }
 

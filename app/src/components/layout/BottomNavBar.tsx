@@ -10,9 +10,9 @@ export function BottomNavBar({ role }: { role?: string }) {
   const navItems = [
     { href: "/", label: "Mesa", icon: "grid_view", show: true },
     { href: "/rankings", label: "Rankings", icon: "leaderboard", show: true },
-    { href: "/caixa", label: "Histórico", icon: "history", show: true },
+    { href: "/caixa", label: "Histórico", icon: "history", show: role === "ADMIN1" || role === "ADMIN2" || role === "ADMIN3" },
     { href: "/dashboard", label: "Meus Stats", icon: "query_stats", show: true },
-    { href: "/admin", label: "Admin", icon: "admin_panel_settings", show: role === "ADMIN1" || role === "ADMIN2" },
+    { href: "/admin", label: "Admin", icon: "admin_panel_settings", show: role === "ADMIN1" || role === "ADMIN2" || role === "ADMIN3" },
   ].filter(item => item.show)
 
   return (

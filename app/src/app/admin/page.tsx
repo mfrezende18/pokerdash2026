@@ -200,27 +200,31 @@ async function AdminContent() {
             <p className="text-body-sm text-secondary mt-1">Pagar jogador</p>
           </Link>
 
-          <Link
-            href="/admin/session"
-            className="group flex flex-col p-6 bg-surface-container-lowest border border-surface-variant/20 rounded-2xl ios-shadow transition-all hover:bg-surface-container active:scale-95 text-left"
-          >
-            <div className="w-12 h-12 rounded-xl bg-surface-container-highest text-secondary flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
-              <span className="material-symbols-outlined">history</span>
-            </div>
-            <span className="text-base text-primary font-bold">Histórico</span>
-            <p className="text-body-sm text-secondary mt-1">Ver sessões</p>
-          </Link>
+          {(sessionUser?.role === "ADMIN1" || sessionUser?.role === "ADMIN2") && (
+            <>
+              <Link
+                href="/admin/session"
+                className="group flex flex-col p-6 bg-surface-container-lowest border border-surface-variant/20 rounded-2xl ios-shadow transition-all hover:bg-surface-container active:scale-95 text-left"
+              >
+                <div className="w-12 h-12 rounded-xl bg-surface-container-highest text-secondary flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+                  <span className="material-symbols-outlined">history</span>
+                </div>
+                <span className="text-base text-primary font-bold">Histórico</span>
+                <p className="text-body-sm text-secondary mt-1">Ver sessões</p>
+              </Link>
 
-          <Link
-            href="/admin/players"
-            className="group flex flex-col p-6 bg-surface-container-lowest border border-surface-variant/20 rounded-2xl ios-shadow transition-all hover:bg-surface-container active:scale-95 text-left md:col-span-2"
-          >
-            <div className="w-12 h-12 rounded-xl bg-primary-container text-on-primary-container flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
-              <span className="material-symbols-outlined">group</span>
-            </div>
-            <span className="text-base text-primary font-bold">Gerenciar Jogadores</span>
-            <p className="text-body-sm text-secondary mt-1">Copiar links de convite</p>
-          </Link>
+              <Link
+                href="/admin/players"
+                className="group flex flex-col p-6 bg-surface-container-lowest border border-surface-variant/20 rounded-2xl ios-shadow transition-all hover:bg-surface-container active:scale-95 text-left md:col-span-2"
+              >
+                <div className="w-12 h-12 rounded-xl bg-primary-container text-on-primary-container flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+                  <span className="material-symbols-outlined">group</span>
+                </div>
+                <span className="text-base text-primary font-bold">Gerenciar Jogadores</span>
+                <p className="text-body-sm text-secondary mt-1">Copiar links de convite</p>
+              </Link>
+            </>
+          )}
         </div>
       </section>
 

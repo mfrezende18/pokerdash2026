@@ -155,7 +155,7 @@ export default function PlayersAdminPage() {
                         {player.pixKey || "Não definido"}
                       </td>
                       <td className="py-4">
-                        {currentUserRole === "ADMIN1" ? (
+                        {(currentUserRole === "ADMIN1" || currentUserRole === "ADMIN2") ? (
                           <select
                             value={player.role}
                             onChange={(e) => handleRoleChange(player.id, e.target.value)}
@@ -163,12 +163,15 @@ export default function PlayersAdminPage() {
                             className="bg-surface-container border border-surface-variant/40 rounded-lg px-2 py-1 text-sm text-primary focus:outline-none focus:border-primary disabled:opacity-50"
                           >
                             <option value="USER">Jogador</option>
+                            <option value="ADMIN3">Operador (Admin 3)</option>
                             <option value="ADMIN2">Gerente (Admin 2)</option>
-                            <option value="ADMIN1">Supremo (Admin 1)</option>
+                            {currentUserRole === "ADMIN1" && (
+                              <option value="ADMIN1">Supremo (Admin 1)</option>
+                            )}
                           </select>
                         ) : (
                           <span className="text-secondary text-sm font-medium">
-                            {player.role === "ADMIN1" ? "Supremo" : player.role === "ADMIN2" ? "Gerente" : "Jogador"}
+                            {player.role === "ADMIN1" ? "Supremo" : player.role === "ADMIN2" ? "Gerente" : player.role === "ADMIN3" ? "Operador" : "Jogador"}
                           </span>
                         )}
                       </td>

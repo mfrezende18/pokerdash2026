@@ -28,7 +28,7 @@ export async function POST(request: NextRequest) {
   try {
     const sessionUser = await getAuthSession()
 
-    if (!sessionUser || (sessionUser.role !== "ADMIN1" && sessionUser.role !== "ADMIN2")) {
+    if (!sessionUser || (sessionUser.role !== "ADMIN1" && sessionUser.role !== "ADMIN2" && sessionUser.role !== "ADMIN3")) {
       return errorResponse("Sem permissão", 403)
     }
 

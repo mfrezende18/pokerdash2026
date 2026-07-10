@@ -34,8 +34,15 @@ export async function proxy(request: NextRequest) {
 
     // Proteção da rota /admin
     if (pathname.startsWith("/admin")) {
-      if (role !== "ADMIN1" && role !== "ADMIN2") {
+      if (role !== "ADMIN1" && role !== "ADMIN2" && role !== "ADMIN3") {
         // Redireciona usuários comuns que tentam acessar o painel admin
+        return NextResponse.redirect(new URL("/", request.url))
+      }
+    }
+
+    // Proteção da rota /caixa (Histórico)
+    if (pathname.startsWith("/caixa")) {
+      if (role !== "ADMIN1" && role !== "ADMIN2" && role !== "ADMIN3") {
         return NextResponse.redirect(new URL("/", request.url))
       }
     }
