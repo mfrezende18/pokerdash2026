@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server"
 import { prisma } from "@/lib/db"
+import { revalidatePath, revalidateTag } from "next/cache"
 
 export async function PATCH(
   request: NextRequest,
@@ -51,6 +52,9 @@ export async function PATCH(
         },
       })
 
+      revalidateTag("sessions")
+      revalidatePath("/")
+
       return NextResponse.json(updated)
     }
 
@@ -79,6 +83,9 @@ export async function DELETE(
     await prisma.session.delete({
       where: { id },
     })
+
+    revalidateTag("sessions")
+    revalidatePath("/")
 
     return NextResponse.json({ success: true })
   } catch (error) {
