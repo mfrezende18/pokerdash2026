@@ -92,13 +92,19 @@ async function RankingsContent() {
             >
               <span className="text-4xl mb-3 block">{medals[index]}</span>
               {player.avatarUrl ? (
-                <Image
-                  src={player.avatarUrl}
-                  alt={player.name}
-                  width={80}
-                  height={80}
-                  className="w-20 h-20 rounded-full object-cover mx-auto mb-3 border-4 border-surface-variant/30"
-                />
+                player.avatarUrl.startsWith("http") || player.avatarUrl.startsWith("/") ? (
+                  <Image
+                    src={player.avatarUrl}
+                    alt={player.name}
+                    width={80}
+                    height={80}
+                    className="w-20 h-20 rounded-full object-cover mx-auto mb-3 border-4 border-surface-variant/30"
+                  />
+                ) : (
+                  <div className="w-20 h-20 rounded-full bg-secondary-container mx-auto mb-3 flex items-center justify-center text-4xl shadow-sm border-4 border-surface-variant/30">
+                    {player.avatarUrl}
+                  </div>
+                )
               ) : (
                 <div className="w-20 h-20 rounded-full bg-surface-container-high mx-auto mb-3 flex items-center justify-center border-4 border-surface-variant/30">
                   <span className="text-2xl font-bold text-secondary">
