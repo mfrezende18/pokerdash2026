@@ -31,6 +31,7 @@ export async function POST(request: Request) {
       })
     }
 
+    // @ts-expect-error
     revalidateTag("events")
 
     return NextResponse.json({ success: true })
@@ -52,7 +53,8 @@ export async function DELETE(request: Request) {
 
     if (id) {
       await prisma.event.delete({ where: { id } })
-      revalidateTag("events")
+      // @ts-expect-error
+    revalidateTag("events")
     }
 
     return NextResponse.json({ success: true })

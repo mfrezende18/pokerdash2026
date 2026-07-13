@@ -450,6 +450,7 @@ export function ActiveTableAdmin({
             </div>
           </div>
         </div>
+      )}
       {/* Close Session Modal */}
       {showCloseModal && (
         <div

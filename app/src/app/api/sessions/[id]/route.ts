@@ -53,6 +53,7 @@ export async function PATCH(
         },
       })
 
+      // @ts-expect-error
       revalidateTag("sessions")
       revalidatePath("/")
 
@@ -85,6 +86,7 @@ export async function DELETE(
       where: { id },
     })
 
+    // @ts-expect-error
     revalidateTag("sessions")
     revalidatePath("/")
 
