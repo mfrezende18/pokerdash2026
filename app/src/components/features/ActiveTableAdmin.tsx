@@ -36,6 +36,7 @@ export function ActiveTableAdmin({
   const [selectedPlayer, setSelectedPlayer] = useState("")
   const [amount, setAmount] = useState("")
   const [isSubmitting, setIsSubmitting] = useState(false)
+  const [pendingCashOuts, setPendingCashOuts] = useState<Record<string, string>>({})
   const [sessionClosedSuccessfully, setSessionClosedSuccessfully] = useState(false)
   const [showReceipt, setShowReceipt] = useState(false)
   const [isPending, startTransition] = useTransition()
@@ -113,7 +114,13 @@ export function ActiveTableAdmin({
       await fetch(`/api/sessions/${sessionId}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ action: "close", rakeCollected: parseFloat(rakeAmount) || 0 })
+        body: JSON.stringify({ 
+          action: "close", 
+          rakeCollected: parseFloat(rakeAmount) || 0,
+          pendingCashOuts: Object.fromEntries(
+            Object.entries(pendingCashOuts).map(([pid, val]) => [pid, parseFloat(val) || 0])
+          )
+        })
       })
       setShowCloseModal(false)
       setSessionClosedSuccessfully(true)
@@ -565,31 +572,91 @@ export function ActiveTableAdmin({
 
             <div className="space-y-5">
               <p className="text-body-md text-secondary">
-                Insira o valor arrecadado de rake para validar a matemática do caixa.
+                Insira o valor arrecadado de rake e os cashouts pendentes para validar a matemática do caixa.
               </p>
+
+              {/* Pending Cashouts for active players */}
+              {(() => {
+                const activePlayers = players.filter(p => p.isActive)
+                if (activePlayers.length === 0) return null
+
+                return (
+                  <div className="bg-surface-container-high/50 p-4 rounded-xl space-y-3">
+                    <h4 className="text-sm font-bold text-error flex items-center gap-1.5">
+                      <span className="material-symbols-outlined text-[18px]">warning</span>
+                      Jogadores sem Cash-out
+                    </h4>
+                    <p className="text-xs text-secondary mb-2">
+                      É obrigatório informar o valor final em fichas de todos os jogadores antes de encerrar. Insira 0 se o jogador perdeu tudo.
+                    </p>
+                    {activePlayers.map(p => (
+                      <div key={p.id} className="flex items-center justify-between gap-3">
+                        <div className="flex-1 min-w-0">
+                          <p className="text-sm font-bold text-primary truncate">{p.name}</p>
+                          <p className="text-[10px] text-secondary">Investido: {formatCurrency(p.totalBuyIn)}</p>
+                        </div>
+                        <input
+                          type="number"
+                          placeholder="Fichas"
+                          value={pendingCashOuts[p.id] ?? ""}
+                          onChange={(e) => setPendingCashOuts(prev => ({ ...prev, [p.id]: e.target.value }))}
+                          className="w-24 border border-outline-variant/40 rounded-lg px-3 py-2 bg-white text-primary text-sm focus:border-primary focus:outline-none transition-colors text-right"
+                        />
+                      </div>
+                    ))}
+                  </div>
+                )
+              })()}
               
               <div className="bg-surface-container-low p-4 rounded-xl">
-                <div className="flex justify-between mb-2">
-                  <span className="text-secondary text-sm">Pot Total de Entradas:</span>
-                  <span className="text-primary font-bold">{formatCurrency(totalPot)}</span>
-                </div>
-                <div className="flex justify-between mb-2 border-t border-surface-variant/20 pt-2">
-                  <span className="text-secondary text-sm">Soma Fichas Vencedoras (+):</span>
-                  <span className="text-green-600 font-bold">+{formatCurrency(totalPositive)}</span>
-                </div>
-                <div className="flex justify-between mb-2">
-                  <span className="text-secondary text-sm">Soma Fichas Perdedoras (-):</span>
-                  <span className="text-error font-bold">{formatCurrency(totalNegative)}</span>
-                </div>
-                <div className="flex justify-between border-t border-surface-variant/20 pt-2">
-                  <span className="text-secondary text-sm font-bold">Saldo do Caixa s/ Rake:</span>
-                  <span className={cn(
-                    "font-bold",
-                    totalPositive + totalNegative < 0 ? "text-error" : "text-primary"
-                  )}>
-                    {formatCurrency(totalPositive + totalNegative)}
-                  </span>
-                </div>
+                {(() => {
+                  const activePlayers = players.filter(p => p.isActive)
+                  
+                  // Calculate dynamic math including pending cashouts
+                  let dynamicPositive = totalPositive
+                  let dynamicNegative = totalNegative
+
+                  activePlayers.forEach(p => {
+                    const inputVal = pendingCashOuts[p.id]
+                    // If no input yet, we don't assume 0 immediately to not confuse the user, 
+                    // or maybe we do. Let's only add if it's not undefined.
+                    if (inputVal !== undefined && inputVal !== "") {
+                      const cv = parseFloat(inputVal) || 0
+                      const net = cv - p.totalBuyIn
+                      if (net > 0) dynamicPositive += net
+                      if (net < 0) dynamicNegative += net
+                    }
+                  })
+
+                  const rake = parseFloat(rakeAmount) || 0
+                  const balance = dynamicPositive + dynamicNegative + rake
+
+                  return (
+                    <>
+                      <div className="flex justify-between mb-2">
+                        <span className="text-secondary text-sm">Pot Total de Entradas:</span>
+                        <span className="text-primary font-bold">{formatCurrency(totalPot)}</span>
+                      </div>
+                      <div className="flex justify-between mb-2 border-t border-surface-variant/20 pt-2">
+                        <span className="text-secondary text-sm">Soma Fichas Vencedoras (+):</span>
+                        <span className="text-green-600 font-bold">+{formatCurrency(dynamicPositive)}</span>
+                      </div>
+                      <div className="flex justify-between mb-2">
+                        <span className="text-secondary text-sm">Soma Fichas Perdedoras (-):</span>
+                        <span className="text-error font-bold">{formatCurrency(dynamicNegative)}</span>
+                      </div>
+                      <div className="flex justify-between border-t border-surface-variant/20 pt-2">
+                        <span className="text-secondary text-sm font-bold">Saldo do Caixa s/ Rake:</span>
+                        <span className={cn(
+                          "font-bold",
+                          dynamicPositive + dynamicNegative < 0 ? "text-error" : "text-primary"
+                        )}>
+                          {formatCurrency(dynamicPositive + dynamicNegative)}
+                        </span>
+                      </div>
+                    </>
+                  )
+                })()}
               </div>
 
               <div>
@@ -607,8 +674,22 @@ export function ActiveTableAdmin({
 
               {/* Math Check */}
               {(() => {
+                const activePlayers = players.filter(p => p.isActive)
+                let dynamicPositive = totalPositive
+                let dynamicNegative = totalNegative
+
+                activePlayers.forEach(p => {
+                  const inputVal = pendingCashOuts[p.id]
+                  if (inputVal !== undefined && inputVal !== "") {
+                    const cv = parseFloat(inputVal) || 0
+                    const net = cv - p.totalBuyIn
+                    if (net > 0) dynamicPositive += net
+                    if (net < 0) dynamicNegative += net
+                  }
+                })
+
                 const rake = parseFloat(rakeAmount) || 0
-                const balance = totalPositive + totalNegative + rake
+                const balance = dynamicPositive + dynamicNegative + rake
                 
                 return (
                   <div className={cn(
@@ -645,13 +726,20 @@ export function ActiveTableAdmin({
                 )
               })()}
 
-              <button
-                onClick={handleCloseSession}
-                disabled={isSubmitting}
-                className="w-full bg-error-container text-on-error-container py-3.5 rounded-xl font-bold text-sm active:scale-95 transition-all disabled:opacity-50 mt-4"
-              >
-                Confirmar Encerramento
-              </button>
+              {(() => {
+                const activePlayers = players.filter(p => p.isActive)
+                const hasMissingCashouts = activePlayers.some(p => pendingCashOuts[p.id] === undefined || pendingCashOuts[p.id] === "")
+                
+                return (
+                  <button
+                    onClick={handleCloseSession}
+                    disabled={isSubmitting || hasMissingCashouts}
+                    className="w-full bg-error-container text-on-error-container py-3.5 rounded-xl font-bold text-sm active:scale-95 transition-all disabled:opacity-50 mt-4 disabled:cursor-not-allowed"
+                  >
+                    Confirmar Encerramento
+                  </button>
+                )
+              })()}
             </div>
           </div>
         </div>

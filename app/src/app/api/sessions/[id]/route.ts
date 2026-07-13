@@ -25,12 +25,10 @@ export async function PATCH(
         return NextResponse.json({ error: "Sessão já está fechada" }, { status: 400 })
       }
 
-      // Auto-cashout 0 chips for anyone who hasn't cashed out (busted players)
-      const playerIdsWithBuyIn = [...new Set(session.buyIns.map((b) => b.playerId))]
-      const playerIdsWithCashOut = new Set(session.cashOuts.map((c) => c.playerId))
-      const bustedPlayers = playerIdsWithBuyIn.filter(pid => !playerIdsWithCashOut.has(pid))
-
-      for (const playerId of bustedPlayers) {
+      // Save pending cashouts sent by frontend
+      const pendingCashOuts = body.pendingCashOuts || {}
+      
+      for (const [playerId, chipValue] of Object.entries(pendingCashOuts)) {
         const playerBuyIns = session.buyIns.filter((b) => b.playerId === playerId)
         const totalBuyIn = playerBuyIns.reduce((sum, b) => sum + b.amount, 0)
         
@@ -38,8 +36,8 @@ export async function PATCH(
           data: {
             sessionId: id,
             playerId,
-            chipValue: 0,
-            netResult: -totalBuyIn, // loss is equal to total buy-ins
+            chipValue: Number(chipValue),
+            netResult: Number(chipValue) - totalBuyIn,
           }
         })
       }
