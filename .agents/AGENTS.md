@@ -38,4 +38,11 @@ A segurança está baseada no `src/proxy.ts` (middleware) e na checagem explíci
 
 ---
 
+## 6. Criação de Sessões Históricas (Timestamps)
+Ao inserir ou modificar Sessões (`Session`) no banco de dados via scripts ou importações de planilhas, é estritamente obrigatório definir manualmente as datas `startedAt` e `closedAt`. 
+- **Por quê?** As queries principais da Home Page (ex: "Último Campeão" e "Ranking da Última Sessão") usam `orderBy: { closedAt: 'desc' }` para buscar o último jogo. Se o `closedAt` for omitido (nulo) durante uma importação, a query de ordenação do banco vai falhar em classificar a mais recente, trazendo a primeira sessão inserida em vez da última.
+- **Obrigação:** Sempre preencha `closedAt` ao salvar sessões históricas.
+
+---
+
 *Estas diretrizes são blindagens. Ao atuar neste projeto, trate-as como verdades absolutas.*
