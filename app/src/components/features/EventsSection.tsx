@@ -24,12 +24,11 @@ export function EventsSection({ events }: EventsSectionProps) {
       <div className="flex flex-col gap-6">
         {events.map((event) => {
           const content = event.imageUrl ? (
-            <div className="relative w-full aspect-[4/5] max-w-[400px] mx-auto rounded-3xl overflow-hidden shadow-xl border border-outline-variant/30">
-              {/* Note: since Base64 strings can be large, unoptimized={true} is generally required if using Next.js Image for Data URIs to prevent errors, or just use regular img. But Next.js handles data URIs if unoptimized. */}
+            <div className="relative w-full max-w-[400px] mx-auto rounded-3xl overflow-hidden shadow-xl border border-outline-variant/30 flex items-center justify-center bg-black/5">
               {event.imageUrl.startsWith("data:") ? (
-                <img src={event.imageUrl} alt={event.title} className="w-full h-full object-cover" />
+                <img src={event.imageUrl} alt={event.title} className="w-full h-auto object-contain" />
               ) : (
-                <Image src={event.imageUrl} alt={event.title} fill className="object-cover" />
+                <Image src={event.imageUrl} alt={event.title} width={1080} height={1350} className="w-full h-auto object-contain" />
               )}
             </div>
           ) : (
