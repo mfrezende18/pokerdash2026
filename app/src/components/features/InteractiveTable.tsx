@@ -57,7 +57,7 @@ export function InteractiveTable({ sessionInfo, activePlayers, allUsers, isAdmin
     player: PlayerData | null;
   }>({ isOpen: false, seatIndex: null, player: null })
 
-  const [buyInAmount, setBuyInAmount] = useState<number>(200)
+  const [buyInAmount, setBuyInAmount] = useState<number>(50)
   const [cashOutAmount, setCashOutAmount] = useState<string>("")
   const [selectedUserId, setSelectedUserId] = useState<string>("")
 

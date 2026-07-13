@@ -103,10 +103,23 @@ async function getActiveSession() {
 
 const getAllPlayersCached = unstable_cache(
   async () => {
-    return prisma.user.findMany({
-      select: { id: true, name: true, avatarUrl: true },
-      orderBy: { name: "asc" },
+    const users = await prisma.user.findMany({
+      select: { 
+        id: true, 
+        name: true, 
+        avatarUrl: true,
+        _count: {
+          select: { buyIns: true }
+        }
+      },
     })
+    
+    return users.sort((a, b) => {
+      const aGames = a._count.buyIns
+      const bGames = b._count.buyIns
+      if (bGames !== aGames) return bGames - aGames
+      return a.name.localeCompare(b.name)
+    }).map(({ _count, ...rest }) => rest)
   },
   ['all-players'],
   { revalidate: 3600, tags: ['players'] }

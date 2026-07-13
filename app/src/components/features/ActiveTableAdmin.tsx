@@ -292,6 +292,7 @@ export function ActiveTableAdmin({
             <div className="flex gap-3 mb-6">
               <button
                 onClick={() => {
+                  setAmount("50")
                   setShowBuyInModal(true)
                   setShowCashOutModal(false)
                 }}
@@ -301,6 +302,7 @@ export function ActiveTableAdmin({
               </button>
               <button
                 onClick={() => {
+                  setAmount("")
                   setShowCashOutModal(true)
                   setShowBuyInModal(false)
                 }}
