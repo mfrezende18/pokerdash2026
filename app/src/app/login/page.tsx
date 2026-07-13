@@ -56,8 +56,7 @@ export default function LoginPage() {
 
   return (
     <main className="min-h-screen bg-background flex flex-col items-center justify-center p-4 relative overflow-hidden">
-      {/* Background glow effects */}
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-primary/20 rounded-full blur-[100px] opacity-50 pointer-events-none" />
+      {/* Background glow removed for Safari performance */}
 
       <div className="w-[90vw] max-w-[400px] z-10 animate-slide-up">
         <div className="text-center mb-8 flex flex-col items-center">

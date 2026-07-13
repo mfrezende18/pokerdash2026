@@ -44,9 +44,7 @@ export default async function InvitePage({ params }: InvitePageProps) {
   }
 
   return (
-    <main className="min-h-screen bg-background flex flex-col items-center justify-center p-4 relative overflow-hidden">
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-primary/20 rounded-full blur-[100px] opacity-50 pointer-events-none" />
-
+    <main className="min-h-screen bg-background flex flex-col items-center justify-center p-4">
       <div className="w-[90vw] max-w-[400px] z-10 animate-slide-up">
         <div className="text-center mb-8">
           <div className="w-16 h-16 bg-surface-container-high rounded-2xl mx-auto mb-6 flex items-center justify-center apple-shadow border border-surface-variant/30">
