@@ -25,7 +25,7 @@ async function getRankings() {
         name: true,
         avatarUrl: true,
         cashOuts: { select: { netResult: true, sessionId: true }, where: { session: { status: "CLOSED" } } },
-        buyIns: { select: { amount: true, sessionId: true }, where: { session: { status: "CLOSED" } } }
+        buyIns: { select: { amount: true, sessionId: true }, where: { session: { status: "CLOSED" }, status: "APPROVED" } }
       },
     }),
     // Fetch closed sessions with buyIns and cashOuts for badge computation
@@ -55,6 +55,7 @@ async function getRankings() {
       const winRateVal = totalSessions > 0 ? (wins / totalSessions) * 100 : 0
       const winRateText = `${wins}/${totalSessions}`
       const isTourist = totalSessions < halfSessions
+      const averageSpent = totalSessions > 0 ? totalInvested / totalSessions : 0
 
       return {
         id: user.id,
@@ -67,6 +68,7 @@ async function getRankings() {
         totalProfit,
         totalSessions,
         totalInvested,
+        averageSpent,
       }
     })
     .filter((r) => r.totalSessions > 0)

@@ -97,7 +97,7 @@ export function PlayerCashWidget({ transactions, sessionName, sessionId, hasPend
           />
 
           {/* Card */}
-          <div className="fixed bottom-44 right-4 z-50 w-[320px] max-w-[calc(100vw-2rem)] bg-surface-container-lowest rounded-2xl apple-shadow border border-surface-variant/20 overflow-hidden animate-in fade-in slide-in-from-bottom-2 duration-200">
+          <div className="fixed bottom-44 right-4 z-50 w-[320px] max-w-[calc(100vw-2rem)] max-h-[calc(100vh-13rem)] flex flex-col bg-surface-container-lowest rounded-2xl apple-shadow border border-surface-variant/20 overflow-hidden animate-in fade-in slide-in-from-bottom-2 duration-200">
             {/* Header */}
             <div className="bg-orange-500 p-5 text-white">
               <div className="flex justify-between items-start">
@@ -138,7 +138,7 @@ export function PlayerCashWidget({ transactions, sessionName, sessionId, hasPend
             </div>
 
             {/* Timeline */}
-            <div className="px-5 pb-5">
+            <div className="px-5 pb-5 overflow-y-auto flex-1">
               <div className="space-y-0">
                 {transactions.map((t, i) => {
                   const isLast = i === transactions.length - 1

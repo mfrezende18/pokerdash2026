@@ -16,6 +16,7 @@ interface RankingItem {
   totalProfit: number
   totalSessions: number
   totalInvested: number
+  averageSpent: number
   badge: "inactive" | "streak" | null
   streakCount: number
   positionDelta: number | null
@@ -25,7 +26,7 @@ interface RankingTableClientProps {
   initialRankings: RankingItem[]
 }
 
-type SortKey = "winRateVal" | "totalSessions" | "totalInvested" | "totalProfit" | "roi"
+type SortKey = "winRateVal" | "totalProfit" | "roi" | "averageSpent"
 type SortOrder = "asc" | "desc"
 
 const medals = ["🥇", "🥈", "🥉"]
@@ -79,18 +80,6 @@ export function RankingTableClient({ initialRankings }: RankingTableClientProps)
                 WIN RATE {sortKey === "winRateVal" && (sortOrder === "desc" ? "↓" : "↑")}
               </th>
               <th 
-                className="px-6 py-4 font-bold text-[11px] cursor-pointer hover:text-primary transition-colors"
-                onClick={() => handleSort("totalSessions")}
-              >
-                SESSÕES {sortKey === "totalSessions" && (sortOrder === "desc" ? "↓" : "↑")}
-              </th>
-              <th 
-                className="px-6 py-4 font-bold text-[11px] cursor-pointer hover:text-primary transition-colors"
-                onClick={() => handleSort("totalInvested")}
-              >
-                INVESTIDO {sortKey === "totalInvested" && (sortOrder === "desc" ? "↓" : "↑")}
-              </th>
-              <th 
                 className="px-6 py-4 font-bold text-right text-[11px] cursor-pointer hover:text-primary transition-colors"
                 onClick={() => handleSort("totalProfit")}
               >
@@ -101,6 +90,12 @@ export function RankingTableClient({ initialRankings }: RankingTableClientProps)
                 onClick={() => handleSort("roi")}
               >
                 ROI {sortKey === "roi" && (sortOrder === "desc" ? "↓" : "↑")}
+              </th>
+              <th 
+                className="px-6 py-4 font-bold text-right text-[11px] cursor-pointer hover:text-primary transition-colors"
+                onClick={() => handleSort("averageSpent")}
+              >
+                MÉDIA GASTO {sortKey === "averageSpent" && (sortOrder === "desc" ? "↓" : "↑")}
               </th>
             </tr>
           </thead>
@@ -117,7 +112,7 @@ export function RankingTableClient({ initialRankings }: RankingTableClientProps)
                 <Fragment key={player.id}>
                   {showTouristHeader && (
                     <tr className="bg-surface-container-high/50">
-                      <td colSpan={7} className="px-6 py-3 text-center">
+                      <td colSpan={6} className="px-6 py-3 text-center">
                         <span className="text-label-caps text-secondary font-bold tracking-widest text-[11px]">
                           ↓ OS TURISTAS (2ª DIVISÃO) ↓
                         </span>
@@ -195,12 +190,6 @@ export function RankingTableClient({ initialRankings }: RankingTableClientProps)
                     <td className="px-6 py-4 text-mono-data text-primary font-bold">
                       {player.winRateText} <span className="text-xs text-secondary ml-1 font-normal">({formatPercent(player.winRateVal)})</span>
                     </td>
-                    <td className="px-6 py-4 text-mono-data text-secondary">
-                      {player.totalSessions}
-                    </td>
-                    <td className="px-6 py-4 text-mono-data text-secondary">
-                      {formatCurrency(player.totalInvested)}
-                    </td>
                     <td
                       className={cn(
                         "px-6 py-4 text-mono-data text-right font-bold",
@@ -225,6 +214,9 @@ export function RankingTableClient({ initialRankings }: RankingTableClientProps)
                       >
                         {formatPercent(player.roi)}
                       </span>
+                    </td>
+                    <td className="px-6 py-4 text-mono-data text-secondary text-right">
+                      {formatCurrency(player.averageSpent)}
                     </td>
                   </tr>
                 </Fragment>

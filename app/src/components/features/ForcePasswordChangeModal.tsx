@@ -47,8 +47,8 @@ export function ForcePasswordChangeModal() {
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
-      <div className="bg-surface-container-lowest w-[90vw] max-w-[400px] rounded-3xl p-8 shadow-2xl relative overflow-hidden">
+    <div className="fixed inset-0 z-50 flex flex-col items-center justify-center bg-black/60 backdrop-blur-sm p-4 sm:p-6 overflow-y-auto">
+      <div className="bg-surface-container-lowest w-full max-w-[400px] rounded-3xl p-6 sm:p-8 shadow-2xl relative shrink-0 my-auto">
         {/* Decorator */}
         <div className="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-primary via-tertiary to-primary"></div>
         
