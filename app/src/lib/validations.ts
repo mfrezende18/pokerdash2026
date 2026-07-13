@@ -19,7 +19,7 @@ export const newSessionSchema = z.object({
   name: z.string({ message: "Nome da mesa é obrigatório" })
     .min(3, "Nome da mesa deve ter no mínimo 3 caracteres"),
   blinds: z.string().optional(),
-  rakeType: z.enum(["FIXED", "PERCENT"], { 
+  rakeType: z.enum(["FIXED", "PERCENT", "NONE"], { 
     message: "Tipo de rake é obrigatório" 
   }),
   rakePercent: z.number().min(0).max(100).optional().default(0),

@@ -20,7 +20,7 @@ const jetbrainsMono = JetBrains_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "PokerAdmin — Home Game Dashboard",
+  title: "Poker Dash — Home Game Dashboard",
   description: "Plataforma de gestão de Poker Cash Game com precisão financeira, transparência e engajamento.",
   robots: {
     index: false,

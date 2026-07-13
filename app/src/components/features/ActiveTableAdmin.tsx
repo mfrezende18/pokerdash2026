@@ -36,6 +36,8 @@ export function ActiveTableAdmin({
   const [selectedPlayer, setSelectedPlayer] = useState("")
   const [amount, setAmount] = useState("")
   const [isSubmitting, setIsSubmitting] = useState(false)
+  const [sessionClosedSuccessfully, setSessionClosedSuccessfully] = useState(false)
+  const [showReceipt, setShowReceipt] = useState(false)
   const [isPending, startTransition] = useTransition()
   const router = useRouter()
 
@@ -113,7 +115,8 @@ export function ActiveTableAdmin({
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ action: "close", rakeCollected: parseFloat(rakeAmount) || 0 })
       })
-      window.location.reload()
+      setShowCloseModal(false)
+      setSessionClosedSuccessfully(true)
     } catch (error) {
       console.error("Erro ao fechar mesa:", error)
       setIsSubmitting(false)
@@ -130,6 +133,95 @@ export function ActiveTableAdmin({
     .reduce((sum, p) => sum + p.netResult!, 0)
 
   if (!sessionId) {
+    // Se a mesa foi fechada agora, e pediu comprovante:
+    if (sessionClosedSuccessfully && showReceipt) {
+      // Sort players by profit (highest first)
+      const sortedPlayers = [...players].sort((a, b) => {
+        const netA = a.netResult ?? -a.totalBuyIn
+        const netB = b.netResult ?? -b.totalBuyIn
+        return netB - netA
+      })
+
+      return (
+        <section className="mb-10 max-w-[500px] mx-auto">
+          <div className="bg-surface-container-lowest rounded-3xl ios-shadow border border-surface-variant/20 overflow-hidden flex flex-col">
+            <div className="bg-primary text-on-primary p-6 text-center">
+              <span className="material-symbols-outlined text-4xl mb-2 opacity-80">receipt_long</span>
+              <h3 className="text-title-lg font-bold">Comprovante de Sessão</h3>
+              <p className="text-sm opacity-80 mt-1">{sessionName}</p>
+            </div>
+            
+            <div className="p-0 bg-white dark:bg-surface-container-lowest">
+              <div className="flex justify-between px-6 py-3 bg-surface-container-low text-xs font-bold text-secondary tracking-wider">
+                <span>JOGADOR</span>
+                <span>RESULTADO</span>
+              </div>
+              
+              <div className="divide-y divide-surface-variant/20">
+                {sortedPlayers.map((p, i) => {
+                  const net = p.netResult ?? -p.totalBuyIn
+                  const isPositive = net > 0
+                  const isNegative = net < 0
+                  const entries = p.rebuys + 1
+                  const avgEntry = p.totalBuyIn / entries
+
+                  return (
+                    <div key={p.id} className="p-4 px-6 flex justify-between items-center bg-white dark:bg-transparent">
+                      <div>
+                        <p className="font-bold text-primary flex items-center gap-2">
+                          <span className="text-secondary/50 text-xs w-4">{i + 1}º</span>
+                          {p.name}
+                        </p>
+                        <p className="text-[11px] text-secondary mt-1">
+                          Investido: {formatCurrency(p.totalBuyIn)}
+                          {entries > 1 && (
+                            <span className="opacity-70 ml-1">
+                              ({entries}x de {formatCurrency(avgEntry)})
+                            </span>
+                          )}
+                        </p>
+                      </div>
+                      <div className="text-right">
+                        <span className={cn(
+                          "font-bold text-lg",
+                          isPositive ? "text-green-600" : isNegative ? "text-error" : "text-secondary"
+                        )}>
+                          {isPositive ? "+" : ""}{formatCurrency(net)}
+                        </span>
+                      </div>
+                    </div>
+                  )
+                })}
+              </div>
+
+              {/* Totais do Comprovante */}
+              <div className="bg-surface-container-low p-6 flex justify-between items-center border-t border-surface-variant/40">
+                <div>
+                  <p className="text-xs font-bold text-secondary mb-1 tracking-wider">MOVIMENTAÇÃO TOTAL</p>
+                  <p className="text-title-md font-bold text-primary">{formatCurrency(totalPot)}</p>
+                </div>
+                {parseFloat(rakeAmount) > 0 && (
+                  <div className="text-right">
+                    <p className="text-xs font-bold text-secondary mb-1 tracking-wider">RAKE</p>
+                    <p className="text-title-md font-bold text-orange-600">{formatCurrency(parseFloat(rakeAmount))}</p>
+                  </div>
+                )}
+              </div>
+            </div>
+
+            <div className="p-6 bg-surface-container-lowest">
+              <button
+                onClick={() => window.location.reload()}
+                className="w-full bg-surface-container-high hover:bg-surface-variant text-primary py-3.5 rounded-xl font-bold transition-all"
+              >
+                Concluir e Sair
+              </button>
+            </div>
+          </div>
+        </section>
+      )
+    }
+
     return (
       <section className="mb-10">
         <div className="bg-surface-container-lowest rounded-2xl ios-shadow border border-surface-variant/20 p-12 text-center">
@@ -560,6 +652,37 @@ export function ActiveTableAdmin({
               >
                 Confirmar Encerramento
               </button>
+            </div>
+          </div>
+        </div>
+      )}
+      {/* Success Modal Ask for Receipt */}
+      {sessionClosedSuccessfully && !showReceipt && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in fade-in duration-200">
+          <div className="bg-surface-container-lowest w-full max-w-[400px] rounded-3xl ios-shadow border border-surface-variant/20 overflow-hidden animate-in zoom-in-95 duration-200 text-center">
+            <div className="p-8">
+              <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <span className="material-symbols-outlined text-3xl text-green-600">check</span>
+              </div>
+              <h3 className="text-title-lg text-primary font-bold mb-2">Mesa Finalizada!</h3>
+              <p className="text-body-sm text-secondary mb-8">
+                A sessão foi encerrada com sucesso. O caixa foi fechado e os resultados salvos. Deseja gerar um comprovante com os resultados finais para enviar no grupo?
+              </p>
+              
+              <div className="space-y-3">
+                <button
+                  onClick={() => setShowReceipt(true)}
+                  className="w-full bg-primary text-on-primary py-3.5 rounded-xl font-bold text-sm active:scale-95 transition-all"
+                >
+                  Sim, Gerar Comprovante
+                </button>
+                <button
+                  onClick={() => window.location.reload()}
+                  className="w-full bg-surface-container-high text-primary py-3.5 rounded-xl font-bold text-sm active:scale-95 transition-all"
+                >
+                  Não, Voltar ao Início
+                </button>
+              </div>
             </div>
           </div>
         </div>

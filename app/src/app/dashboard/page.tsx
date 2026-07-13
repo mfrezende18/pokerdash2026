@@ -3,7 +3,7 @@ export const dynamic = "force-dynamic"
 import type { Metadata } from "next"
 
 export const metadata: Metadata = {
-  title: "Meu Dashboard — PokerAdmin",
+  title: "Meu Dashboard — Poker Dash",
   description: "Dashboard pessoal de performance e histórico de sessões.",
 }
 

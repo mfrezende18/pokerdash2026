@@ -63,7 +63,7 @@ export default function LoginPage() {
           <div className="w-16 h-16 bg-surface-container-high rounded-2xl mx-auto mb-6 flex items-center justify-center apple-shadow border border-surface-variant/30">
             <span className="material-symbols-outlined text-primary text-3xl">playing_cards</span>
           </div>
-          <h1 className="text-3xl font-bold text-primary tracking-tight">PokerAdmin</h1>
+          <h1 className="text-3xl font-bold text-primary tracking-tight">Poker Dash</h1>
           <p className="text-secondary mt-2">Acesse sua conta para entrar na mesa</p>
         </div>
 

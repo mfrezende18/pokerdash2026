@@ -9,7 +9,7 @@ import { redirect } from "next/navigation"
 import { HistoryListClient } from "@/components/features/HistoryListClient"
 
 export const metadata: Metadata = {
-  title: "Histórico de Mesas — PokerAdmin",
+  title: "Histórico de Mesas — Poker Dash",
   description: "Histórico completo de todas as sessões de poker realizadas.",
 }
 
