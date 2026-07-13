@@ -13,6 +13,7 @@ import { getAuthSession } from "@/lib/auth"
 import { formatCurrency } from "@/lib/utils"
 import { Suspense } from "react"
 import { unstable_cache } from "next/cache"
+import { EmptyTableState } from "@/components/features/EmptyTableState"
 
 async function getActiveSession() {
   const session = await prisma.session.findFirst({
@@ -195,7 +196,7 @@ async function HomeContent({ sessionUser }: { sessionUser: any }) {
       getAllPlayersCached(),
     ])
 
-  const isAdmin = sessionUser?.role === "ADMIN1" || sessionUser?.role === "ADMIN2"
+  const isAdmin = sessionUser?.role === "ADMIN1" || sessionUser?.role === "ADMIN2" || sessionUser?.role === "ADMIN3"
 
   return (
     <>
@@ -218,10 +219,7 @@ async function HomeContent({ sessionUser }: { sessionUser: any }) {
           </div>
         </div>
       ) : (
-        <div className="bg-surface-container-lowest rounded-2xl p-10 text-center border border-surface-variant/20 apple-shadow">
-          <h2 className="text-headline-sm text-primary mb-2">Nenhuma mesa rolando</h2>
-          <p className="text-secondary mb-6">Inicie uma sessão para começar o jogo.</p>
-        </div>
+        <EmptyTableState isAdmin={isAdmin} />
       )}
 
       {events.length > 0 && (
