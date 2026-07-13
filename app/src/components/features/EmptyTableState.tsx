@@ -87,7 +87,7 @@ export function EmptyTableState({ isAdmin }: EmptyTableStateProps) {
 
       {showModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm" onClick={() => !isSubmitting && setShowModal(false)}>
-          <div className="bg-surface-container-lowest rounded-3xl p-8 w-[90vw] max-w-[400px] apple-shadow border border-surface-variant/20" onClick={e => e.stopPropagation()}>
+          <div className="bg-surface-container-lowest rounded-3xl p-6 pb-24 md:p-8 md:pb-24 w-[90vw] max-w-[400px] max-h-[90vh] overflow-y-auto apple-shadow border border-surface-variant/20" onClick={e => e.stopPropagation()}>
             <div className="flex justify-between items-center mb-6">
               <h3 className="text-title-lg text-primary font-semibold">Abrir Nova Mesa</h3>
               <button

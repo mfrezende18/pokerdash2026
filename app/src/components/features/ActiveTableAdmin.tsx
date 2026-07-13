@@ -535,7 +535,7 @@ export function ActiveTableAdmin({
           onClick={closeModals}
         >
           <div
-            className="bg-surface-container-lowest rounded-3xl p-6 md:p-8 w-[90vw] max-w-[400px] max-h-[90vh] overflow-y-auto apple-shadow border border-surface-variant/20"
+            className="bg-surface-container-lowest rounded-3xl p-6 pb-24 md:p-8 md:pb-24 w-[90vw] max-w-[400px] max-h-[90vh] overflow-y-auto apple-shadow border border-surface-variant/20"
             onClick={e => e.stopPropagation()}
           >
             <div className="flex justify-between items-center mb-6">
@@ -606,7 +606,7 @@ export function ActiveTableAdmin({
           onClick={closeModals}
         >
           <div
-            className="bg-surface-container-lowest rounded-3xl p-6 md:p-8 w-[90vw] max-w-[400px] max-h-[90vh] overflow-y-auto apple-shadow border border-surface-variant/20"
+            className="bg-surface-container-lowest rounded-3xl p-6 pb-24 md:p-8 md:pb-24 w-[90vw] max-w-[400px] max-h-[90vh] overflow-y-auto apple-shadow border border-surface-variant/20"
             onClick={e => e.stopPropagation()}
           >
             <div className="flex justify-between items-center mb-6">
@@ -669,7 +669,7 @@ export function ActiveTableAdmin({
           onClick={closeModals}
         >
           <div
-            className="bg-surface-container-lowest rounded-3xl p-6 md:p-8 w-[90vw] max-w-[480px] max-h-[90vh] overflow-y-auto apple-shadow border border-surface-variant/20"
+            className="bg-surface-container-lowest rounded-3xl p-6 pb-24 md:p-8 md:pb-24 w-[90vw] max-w-[480px] max-h-[90vh] overflow-y-auto apple-shadow border border-surface-variant/20"
             onClick={e => e.stopPropagation()}
           >
             <div className="flex justify-between items-center mb-6">
