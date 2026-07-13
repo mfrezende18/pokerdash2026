@@ -56,12 +56,12 @@ export function EmptyTableState({ isAdmin }: EmptyTableStateProps) {
       <div className="relative overflow-hidden rounded-3xl apple-shadow min-h-[300px] flex flex-col items-center justify-center p-10 border border-surface-variant/20">
         {/* Background Image */}
         <div 
-          className="absolute inset-0 bg-[url('/flyer-resenha.jpg')] bg-cover bg-center opacity-30 z-0"
+          className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1540828773836-121855eecae7?auto=format&fit=crop&q=80&w=1200')] bg-cover bg-center opacity-30 z-0"
           style={{ filter: 'grayscale(0.5)' }}
         />
         
         {/* Overlay to ensure text readability */}
-        <div className="absolute inset-0 bg-surface-container-lowest/50 z-0" />
+        <div className="absolute inset-0 bg-surface-container-lowest/70 z-0" />
 
         <div className="relative z-10 text-center flex flex-col items-center">
           <span className="material-symbols-outlined text-6xl text-primary/70 mb-4 drop-shadow-md">
@@ -70,7 +70,7 @@ export function EmptyTableState({ isAdmin }: EmptyTableStateProps) {
           <h2 className="text-headline-md text-primary font-bold drop-shadow-sm">
             Nenhuma mesa aberta
           </h2>
-          <p className="text-secondary/90 font-medium mt-2 max-w-sm">
+          <p className="text-secondary/90 font-medium mt-2 max-w-[350px] px-4">
             No momento não há jogos rolando. Fique atento às nossas notificações!
           </p>
 
