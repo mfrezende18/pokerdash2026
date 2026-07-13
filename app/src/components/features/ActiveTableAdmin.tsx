@@ -416,14 +416,14 @@ export function ActiveTableAdmin({
         </div>
       </section>
 
-      {/* Buy-in Modal */}
+      {/* Buy-In Modal */}
       {showBuyInModal && (
         <div
           className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm"
           onClick={closeModals}
         >
           <div
-            className="bg-surface-container-lowest rounded-3xl p-8 w-[90vw] max-w-[480px] apple-shadow border border-surface-variant/20"
+            className="bg-surface-container-lowest rounded-3xl p-6 md:p-8 w-[90vw] max-w-[400px] max-h-[90vh] overflow-y-auto apple-shadow border border-surface-variant/20"
             onClick={e => e.stopPropagation()}
           >
             <div className="flex justify-between items-center mb-6">
@@ -487,14 +487,14 @@ export function ActiveTableAdmin({
         </div>
       )}
 
-      {/* Cash-out Modal */}
+      {/* Cash-Out Modal */}
       {showCashOutModal && (
         <div
           className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm"
           onClick={closeModals}
         >
           <div
-            className="bg-surface-container-lowest rounded-3xl p-8 w-[90vw] max-w-[480px] apple-shadow border border-surface-variant/20"
+            className="bg-surface-container-lowest rounded-3xl p-6 md:p-8 w-[90vw] max-w-[400px] max-h-[90vh] overflow-y-auto apple-shadow border border-surface-variant/20"
             onClick={e => e.stopPropagation()}
           >
             <div className="flex justify-between items-center mb-6">
@@ -557,7 +557,7 @@ export function ActiveTableAdmin({
           onClick={closeModals}
         >
           <div
-            className="bg-surface-container-lowest rounded-3xl p-8 w-[90vw] max-w-[480px] apple-shadow border border-surface-variant/20"
+            className="bg-surface-container-lowest rounded-3xl p-6 md:p-8 w-[90vw] max-w-[480px] max-h-[90vh] overflow-y-auto apple-shadow border border-surface-variant/20"
             onClick={e => e.stopPropagation()}
           >
             <div className="flex justify-between items-center mb-6">
@@ -747,8 +747,8 @@ export function ActiveTableAdmin({
       {/* Success Modal Ask for Receipt */}
       {sessionClosedSuccessfully && !showReceipt && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in fade-in duration-200">
-          <div className="bg-surface-container-lowest w-full max-w-[400px] rounded-3xl ios-shadow border border-surface-variant/20 overflow-hidden animate-in zoom-in-95 duration-200 text-center">
-            <div className="p-8">
+          <div className="bg-surface-container-lowest w-full max-w-[400px] max-h-[90vh] overflow-y-auto rounded-3xl ios-shadow border border-surface-variant/20 animate-in zoom-in-95 duration-200 text-center">
+            <div className="p-6 md:p-8">
               <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
                 <span className="material-symbols-outlined text-3xl text-green-600">check</span>
               </div>
