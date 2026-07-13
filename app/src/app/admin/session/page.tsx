@@ -6,6 +6,7 @@ import { getAuthSession } from "@/lib/auth"
 import { NewSessionForm } from "./NewSessionForm"
 import { EditSessionModal } from "./EditSessionModal"
 import { DeleteSessionButton } from "./DeleteSessionButton"
+import { GenerateReceiptButton } from "./GenerateReceiptButton"
 
 export const dynamic = "force-dynamic"
 
@@ -64,6 +65,7 @@ export default async function SessionPage() {
 
                   {isClosed && isAdmin1 && (
                     <div className="flex items-center">
+                      <GenerateReceiptButton session={session} />
                       <EditSessionModal session={session} />
                       <DeleteSessionButton sessionId={session.id} />
                     </div>
