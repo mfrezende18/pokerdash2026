@@ -149,14 +149,40 @@ export function ActiveTableAdmin({
     if (!receiptRef.current) return
     try {
       setIsGeneratingImage(true)
+      
+      // html-to-image sometimes needs a warmup on Safari
+      await toPng(receiptRef.current, { quality: 1, backgroundColor: "#000" })
       const dataUrl = await toPng(receiptRef.current, { quality: 1, backgroundColor: "#000" })
+      
+      const fileName = `Comprovante-${sessionName?.replace(/\s+/g, "-") || "Sessao"}.png`
+      
+      try {
+        // Tentar usar a API de compartilhamento nativa (ótimo para iOS/Android)
+        const blob = await (await fetch(dataUrl)).blob()
+        const file = new File([blob], fileName, { type: blob.type })
+        
+        if (navigator.share && navigator.canShare && navigator.canShare({ files: [file] })) {
+          await navigator.share({
+            title: 'Comprovante de Sessão',
+            files: [file]
+          })
+          return
+        }
+      } catch (shareErr) {
+        console.log("Share API não suportada ou falhou, tentando fallback...", shareErr)
+      }
+
+      // Fallback 1: Forçar download tradicional
       const link = document.createElement("a")
-      link.download = `Comprovante-${sessionName?.replace(/\s+/g, "-") || "Sessao"}.png`
+      link.download = fileName
       link.href = dataUrl
+      document.body.appendChild(link)
       link.click()
+      document.body.removeChild(link)
+      
     } catch (err) {
       console.error("Erro ao gerar imagem", err)
-      alert("Não foi possível gerar a imagem.")
+      alert("Não foi possível gerar a imagem. Verifique se o navegador tem permissão.")
     } finally {
       setIsGeneratingImage(false)
     }
