@@ -298,7 +298,7 @@ export function ActiveTableAdmin({
                 totalPot={totalPot}
                 totalPositive={totalPositive}
                 totalNegative={totalNegative}
-                isMathCorrect={Math.abs(totalPositive + totalNegative) < 1}
+                isMathCorrect={Math.abs(totalPositive + totalNegative + Number(rakeAmount || 0)) < 1}
               />
             </div>
           </div>
