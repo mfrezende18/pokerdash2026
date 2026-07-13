@@ -1,9 +1,12 @@
 "use client"
 
 import { cn, formatCurrency, getInitials } from "@/lib/utils"
-import { useState, useTransition } from "react"
+import { useState, useTransition, useRef } from "react"
 import { useRouter } from "next/navigation"
 import Image from "next/image"
+import { format } from "date-fns"
+import { toPng } from "html-to-image"
+import { ReceiptTable, ReceiptPlayerData } from "./ReceiptTable"
 
 interface PlayerSummary {
   id: string
@@ -14,6 +17,7 @@ interface PlayerSummary {
   cashOutValue: number | null
   netResult: number | null
   isActive: boolean
+  buyInRecords?: number[]
 }
 
 interface ActiveTableAdminProps {
@@ -39,8 +43,10 @@ export function ActiveTableAdmin({
   const [pendingCashOuts, setPendingCashOuts] = useState<Record<string, string>>({})
   const [sessionClosedSuccessfully, setSessionClosedSuccessfully] = useState(false)
   const [showReceipt, setShowReceipt] = useState(false)
+  const [isGeneratingImage, setIsGeneratingImage] = useState(false)
   const [isPending, startTransition] = useTransition()
   const router = useRouter()
+  const receiptRef = useRef<HTMLDivElement>(null)
 
   const handleBuyIn = async (type: "INITIAL" | "REBUY") => {
     if (!selectedPlayer || !amount || !sessionId) return
@@ -139,6 +145,23 @@ export function ActiveTableAdmin({
     .filter(p => p.netResult !== null && p.netResult < 0)
     .reduce((sum, p) => sum + p.netResult!, 0)
 
+  const handleDownloadReceipt = async () => {
+    if (!receiptRef.current) return
+    try {
+      setIsGeneratingImage(true)
+      const dataUrl = await toPng(receiptRef.current, { quality: 1, backgroundColor: "#000" })
+      const link = document.createElement("a")
+      link.download = `Comprovante-${sessionName?.replace(/\s+/g, "-") || "Sessao"}.png`
+      link.href = dataUrl
+      link.click()
+    } catch (err) {
+      console.error("Erro ao gerar imagem", err)
+      alert("Não foi possível gerar a imagem.")
+    } finally {
+      setIsGeneratingImage(false)
+    }
+  }
+
   // Se a mesa foi fechada agora, e pediu comprovante:
   if (sessionClosedSuccessfully && showReceipt) {
     // Sort players by profit (highest first)
@@ -148,8 +171,36 @@ export function ActiveTableAdmin({
       return netB - netA
     })
 
+    const receiptPlayers: ReceiptPlayerData[] = sortedPlayers.map(p => {
+      const cOut = p.cashOutValue !== null ? p.cashOutValue : parseFloat(pendingCashOuts[p.id]) || 0
+      const net = cOut - p.totalBuyIn
+      
+      // If we don't have explicit buyInRecords, mock them based on totalBuyIn and rebuys count
+      let buyInRecords = p.buyInRecords
+      if (!buyInRecords || buyInRecords.length === 0) {
+        const entryCount = p.rebuys + 1
+        const avg = p.totalBuyIn / entryCount
+        buyInRecords = Array.from({ length: entryCount }).fill(avg) as number[]
+      }
+
+      // First entry is buyin, rest are rebuys
+      const initialBuyIn = buyInRecords[0] || p.totalBuyIn
+      const actualRebuys = buyInRecords.slice(1)
+
+      return {
+        id: p.id,
+        name: p.name,
+        buyIn: initialBuyIn,
+        rebuys: actualRebuys,
+        totalSpent: p.totalBuyIn,
+        cashOut: cOut,
+        profit: net > 0 ? net : 0,
+        loss: net < 0 ? net : 0
+      }
+    })
+
     return (
-      <section className="mb-10 max-w-[500px] mx-auto">
+      <section className="mb-10 max-w-full mx-auto px-2 md:px-0">
         <div className="bg-surface-container-lowest rounded-3xl ios-shadow border border-surface-variant/20 overflow-hidden flex flex-col">
           <div className="bg-primary text-on-primary p-6 text-center">
             <span className="material-symbols-outlined text-4xl mb-2 opacity-80">receipt_long</span>
@@ -157,65 +208,32 @@ export function ActiveTableAdmin({
             <p className="text-sm opacity-80 mt-1">{sessionName}</p>
           </div>
           
-          <div className="p-0 bg-white dark:bg-surface-container-lowest">
-            <div className="flex justify-between px-6 py-3 bg-surface-container-low text-xs font-bold text-secondary tracking-wider">
-              <span>JOGADOR</span>
-              <span>RESULTADO</span>
-            </div>
-            
-            <div className="divide-y divide-surface-variant/20">
-              {sortedPlayers.map((p, i) => {
-                const net = p.netResult !== null ? p.netResult : ((parseFloat(pendingCashOuts[p.id]) || 0) - p.totalBuyIn)
-                const isPositive = net > 0
-                const isNegative = net < 0
-                const entries = p.rebuys + 1
-                const avgEntry = p.totalBuyIn / entries
-
-                return (
-                  <div key={p.id} className="p-4 px-6 flex justify-between items-center bg-white dark:bg-transparent">
-                    <div>
-                      <p className="font-bold text-primary flex items-center gap-2">
-                        <span className="text-secondary/50 text-xs w-4">{i + 1}º</span>
-                        {p.name}
-                      </p>
-                      <p className="text-[11px] text-secondary mt-1">
-                        Investido: {formatCurrency(p.totalBuyIn)}
-                        {entries > 1 && (
-                          <span className="opacity-70 ml-1">
-                            ({entries}x de {formatCurrency(avgEntry)})
-                          </span>
-                        )}
-                      </p>
-                    </div>
-                    <div className="text-right">
-                      <span className={cn(
-                        "font-bold text-lg",
-                        isPositive ? "text-green-600" : isNegative ? "text-error" : "text-secondary"
-                      )}>
-                        {isPositive ? "+" : ""}{formatCurrency(net)}
-                      </span>
-                    </div>
-                  </div>
-                )
-              })}
-            </div>
-
-            {/* Totais do Comprovante */}
-            <div className="bg-surface-container-low p-6 flex justify-between items-center border-t border-surface-variant/40">
-              <div>
-                <p className="text-xs font-bold text-secondary mb-1 tracking-wider">MOVIMENTAÇÃO TOTAL</p>
-                <p className="text-title-md font-bold text-primary">{formatCurrency(totalPot)}</p>
-              </div>
-              {parseFloat(rakeAmount) > 0 && (
-                <div className="text-right">
-                  <p className="text-xs font-bold text-secondary mb-1 tracking-wider">RAKE</p>
-                  <p className="text-title-md font-bold text-orange-600">{formatCurrency(parseFloat(rakeAmount))}</p>
-                </div>
-              )}
+          <div className="p-4 bg-surface-container-lowest overflow-x-auto">
+            {/* The actual table that will be captured */}
+            <div className="min-w-max mx-auto border-4 border-black rounded-lg overflow-hidden">
+              <ReceiptTable 
+                ref={receiptRef}
+                date={format(new Date(), "dd/MM/yyyy")}
+                locationName={sessionName?.split("-")?.[1]?.trim() || "Poker Dash"}
+                players={receiptPlayers}
+                rake={parseFloat(rakeAmount) || 0}
+                totalPot={totalPot}
+                totalPositive={totalPositive}
+                totalNegative={totalNegative}
+                isMathCorrect={Math.abs(totalPositive + totalNegative) < 1}
+              />
             </div>
           </div>
 
-          <div className="p-6 bg-surface-container-lowest">
+          <div className="p-6 bg-surface-container-lowest border-t border-surface-variant/20 space-y-3">
+            <button
+              onClick={handleDownloadReceipt}
+              disabled={isGeneratingImage}
+              className="w-full bg-green-600 hover:bg-green-700 text-white py-4 rounded-xl font-bold transition-all flex items-center justify-center gap-2 text-lg shadow-lg active:scale-95 disabled:opacity-50"
+            >
+              <span className="material-symbols-outlined">download</span>
+              {isGeneratingImage ? "Gerando Imagem..." : "Baixar Imagem da Tabela"}
+            </button>
             <button
               onClick={() => window.location.reload()}
               className="w-full bg-surface-container-high hover:bg-surface-variant text-primary py-3.5 rounded-xl font-bold transition-all"

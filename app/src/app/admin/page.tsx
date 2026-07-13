@@ -60,6 +60,7 @@ async function getAdminData() {
     cashOutValue: number | null
     netResult: number | null
     isActive: boolean
+    buyInRecords: number[]
   }> = []
 
   if (activeSession) {
@@ -79,6 +80,7 @@ async function getAdminData() {
         cashOutValue: playerCashOut?.chipValue ?? null,
         netResult: playerCashOut?.netResult ?? null,
         isActive: !playerCashOut,
+        buyInRecords: playerBuyIns.map(b => b.amount),
       })
     }
   }
