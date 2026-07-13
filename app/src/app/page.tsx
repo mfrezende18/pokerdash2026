@@ -33,22 +33,29 @@ async function getActiveSession() {
 
   if (!session) return null
 
-  const totalPot = session.buyIns.reduce((sum, b) => sum + b.amount, 0)
+  const totalPot = session.buyIns.filter(b => b.status === "APPROVED").reduce((sum, b) => sum + b.amount, 0)
   const uniquePlayers = new Set(session.buyIns.map((b) => b.playerId))
   const activePlayersIds = [...uniquePlayers].filter(
     (pid) => !session.cashOuts.some((c) => c.playerId === pid)
   )
 
   const activePlayersData = activePlayersIds.map((pid) => {
-    const playerBuyIns = session.buyIns.filter((b) => b.playerId === pid)
-    const player = playerBuyIns[0].player
+    const allPlayerBuyIns = session.buyIns.filter((b) => b.playerId === pid)
+    const approvedBuyIns = allPlayerBuyIns.filter(b => b.status === "APPROVED")
+    const pendingBuyIn = allPlayerBuyIns.find(b => b.status === "PENDING")
+    
+    // Default to the first buy in we found if no approved exist yet (for edge cases)
+    const player = allPlayerBuyIns[0].player
     return {
       id: player.id,
       name: player.name,
       avatarUrl: player.avatarUrl,
-      totalSpent: playerBuyIns.reduce((sum, b) => sum + b.amount, 0),
-      rebuyCount: playerBuyIns.length - 1,
-      joinedAt: playerBuyIns[0].createdAt,
+      totalSpent: approvedBuyIns.reduce((sum, b) => sum + b.amount, 0),
+      rebuyCount: approvedBuyIns.filter(b => b.type === "REBUY").length,
+      joinedAt: allPlayerBuyIns[0].createdAt,
+      isPendingRebuy: !!pendingBuyIn,
+      pendingRebuyAmount: pendingBuyIn ? pendingBuyIn.amount : null,
+      pendingRebuyId: pendingBuyIn ? pendingBuyIn.id : null,
     }
   })
 
@@ -57,6 +64,24 @@ async function getActiveSession() {
   const rebuyCounts: Record<string, number> = {}
 
   for (const b of session.buyIns) {
+    if (b.status === "PENDING") {
+      allEvents.push({
+        id: b.id + "-pending",
+        timestamp: b.createdAt,
+        message: `${b.player.name} solicitou re-buy de ${formatCurrency(b.amount)}`,
+      })
+      continue
+    }
+    
+    if (b.status === "REJECTED") {
+      allEvents.push({
+        id: b.id + "-rejected",
+        timestamp: b.updatedAt,
+        message: `❌ Solicitação de re-buy de ${b.player.name} foi recusada`,
+      })
+      continue
+    }
+
     if (b.type === "INITIAL") {
       allEvents.push({
         id: b.id,
@@ -64,19 +89,20 @@ async function getActiveSession() {
         message: `${b.player.name} entrou no jogo: buy-in ${formatCurrency(b.amount)}`,
       })
     } else {
+      // It's APPROVED
       rebuyCounts[b.playerId] = (rebuyCounts[b.playerId] || 0) + 1
       const count = rebuyCounts[b.playerId]
       if (count === 1) {
         allEvents.push({
           id: b.id,
-          timestamp: b.createdAt,
-          message: `re-buy para o ${b.player.name} ${formatCurrency(b.amount)}`,
+          timestamp: b.updatedAt,
+          message: `✅ re-buy para o ${b.player.name} ${formatCurrency(b.amount)}`,
         })
       } else {
         allEvents.push({
           id: b.id,
-          timestamp: b.createdAt,
-          message: `${count}º re-buy ${b.player.name} ${formatCurrency(b.amount)}`,
+          timestamp: b.updatedAt,
+          message: `✅ ${count}º re-buy ${b.player.name} ${formatCurrency(b.amount)}`,
         })
       }
     }

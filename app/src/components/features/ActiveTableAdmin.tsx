@@ -891,7 +891,7 @@ export function ActiveTableAdmin({
       {/* Modal Rebuy Approval */}
       {showApproveModal && selectedPendingRebuy && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
-          <div className="bg-surface-container w-full max-w-sm rounded-3xl p-6 shadow-xl animate-in zoom-in-95 duration-200 border border-surface-variant/20">
+          <div className="bg-surface-container w-full max-w-[320px] rounded-3xl p-6 shadow-xl animate-in zoom-in-95 duration-200 border border-surface-variant/20">
             <h3 className="text-xl font-bold text-primary mb-2 text-center">Aprovar Re-buy</h3>
             <p className="text-secondary text-center mb-6">
               Confirmar Re-buy de <strong className="text-primary">{formatCurrency(selectedPendingRebuy.pendingRebuyAmount || 0)}</strong> para <strong className="text-primary">{selectedPendingRebuy.name}</strong>?

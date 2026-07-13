@@ -1,6 +1,7 @@
 "use client"
 
 import { useState } from "react"
+import { useRouter } from "next/navigation"
 import Image from "next/image"
 import { cn, formatCurrency } from "@/lib/utils"
 import { addPlayerToSession, addRebuyToSession, removePlayerFromSession, cashOutPlayerFromSession } from "@/app/actions"
@@ -14,6 +15,9 @@ interface PlayerData {
   totalSpent: number
   rebuyCount: number
   joinedAt: Date
+  isPendingRebuy?: boolean
+  pendingRebuyAmount?: number | null
+  pendingRebuyId?: string | null
 }
 
 interface SessionInfo {
@@ -60,6 +64,8 @@ export function InteractiveTable({ sessionInfo, activePlayers, allUsers, isAdmin
   const [buyInAmount, setBuyInAmount] = useState<number>(50)
   const [cashOutAmount, setCashOutAmount] = useState<string>("")
   const [selectedUserId, setSelectedUserId] = useState<string>("")
+  const [isSubmittingRebuy, setIsSubmittingRebuy] = useState(false)
+  const router = useRouter()
 
   // Criar array fixo de 10 posições
   const seats = Array.from({ length: 10 }).map((_, i) => activePlayers[i] || null)
@@ -109,6 +115,34 @@ export function InteractiveTable({ sessionInfo, activePlayers, allUsers, isAdmin
     await cashOutPlayerFromSession(sessionInfo.id, playerId, amount)
   }
 
+  const handleApproveRebuy = async (action: "APPROVE" | "REJECT") => {
+    if (!popoverState.player?.pendingRebuyId) return
+    setIsSubmittingRebuy(true)
+
+    try {
+      const res = await fetch(`/api/sessions/${sessionInfo.id}/approve-rebuy`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          buyInId: popoverState.player.pendingRebuyId,
+          action,
+        }),
+      })
+
+      if (!res.ok) {
+        const data = await res.json()
+        alert(data.error || "Erro ao processar solicitação")
+      }
+    } catch (error) {
+      console.error(error)
+      alert("Erro ao processar re-buy")
+    } finally {
+      setIsSubmittingRebuy(false)
+      closePopover()
+      router.refresh()
+    }
+  }
+
   // Filtrar usuários que já estão sentados
   const availableUsers = allUsers.filter(u => !activePlayers.some(ap => ap.id === u.id))
 
@@ -148,7 +182,8 @@ export function InteractiveTable({ sessionInfo, activePlayers, allUsers, isAdmin
             className={cn(
               "absolute w-14 h-14 md:w-20 md:h-20 rounded-full flex items-center justify-center transform -translate-x-1/2 -translate-y-1/2 cursor-pointer transition-all border-4 shadow-lg",
               seatClasses[index],
-              player ? "bg-surface-container border-primary hover:scale-105" : "bg-black/40 border-white/10 hover:border-white/40 border-dashed backdrop-blur-sm"
+              player ? "bg-surface-container border-primary hover:scale-105" : "bg-black/40 border-white/10 hover:border-white/40 border-dashed backdrop-blur-sm",
+              player?.isPendingRebuy && "ring-4 ring-orange-500 animate-pulse border-none"
             )}
             style={{ zIndex: popoverState.seatIndex === index ? 40 : 20 }}
           >
@@ -222,44 +257,69 @@ export function InteractiveTable({ sessionInfo, activePlayers, allUsers, isAdmin
 
                 {isAdmin && (
                   <div className="flex flex-col gap-4 pt-2">
-                    <div className="bg-surface-container-low p-3 rounded-xl space-y-3 border border-surface-variant/30">
-                      <div className="flex items-center gap-2">
-                        <span className="text-body-sm font-semibold w-16">Re-buy:</span>
-                        <input 
-                          type="number" 
-                          value={buyInAmount}
-                          onChange={e => setBuyInAmount(Number(e.target.value))}
-                          className="flex-1 bg-surface-container border border-surface-variant rounded-lg p-2 text-primary focus:outline-none focus:ring-2 focus:ring-primary/50 text-sm"
-                        />
+                    {popoverState.player.isPendingRebuy ? (
+                      <div className="bg-orange-500/10 border border-orange-500/30 p-4 rounded-xl space-y-3">
+                        <p className="text-sm text-center font-bold text-orange-600 mb-2">Solicitação de Re-buy Pendente!</p>
+                        <p className="text-center text-primary mb-4">
+                          Valor: <strong className="text-orange-600 text-lg">{formatCurrency(popoverState.player.pendingRebuyAmount || 0)}</strong>
+                        </p>
+                        <button
+                          onClick={() => handleApproveRebuy("APPROVE")}
+                          disabled={isSubmittingRebuy}
+                          className="w-full bg-orange-500 hover:bg-orange-600 active:bg-orange-700 text-white py-3 rounded-xl font-bold transition-colors disabled:opacity-50"
+                        >
+                          {isSubmittingRebuy ? "Processando..." : "Confirmar Re-buy"}
+                        </button>
+                        <button
+                          onClick={() => handleApproveRebuy("REJECT")}
+                          disabled={isSubmittingRebuy}
+                          className="w-full bg-surface-container hover:bg-surface-variant text-error py-3 rounded-xl font-bold transition-colors border border-error/20 disabled:opacity-50"
+                        >
+                          Recusar
+                        </button>
                       </div>
-                      <button onClick={handleAddRebuy} className="w-full bg-primary text-on-primary py-2.5 rounded-xl font-bold active:scale-95 transition-transform hover:opacity-90 text-sm">
-                        Adicionar Re-buy
-                      </button>
-                    </div>
+                    ) : (
+                      <>
+                        <div className="bg-surface-container-low p-3 rounded-xl space-y-3 border border-surface-variant/30">
+                          <div className="flex items-center gap-2">
+                            <span className="text-body-sm font-semibold w-16">Re-buy:</span>
+                            <input 
+                              type="number" 
+                              value={buyInAmount}
+                              onChange={e => setBuyInAmount(Number(e.target.value))}
+                              className="flex-1 bg-surface-container border border-surface-variant rounded-lg p-2 text-primary focus:outline-none focus:ring-2 focus:ring-primary/50 text-sm"
+                            />
+                          </div>
+                          <button onClick={handleAddRebuy} className="w-full bg-primary text-on-primary py-2.5 rounded-xl font-bold active:scale-95 transition-transform hover:opacity-90 text-sm">
+                            Adicionar Re-buy
+                          </button>
+                        </div>
 
-                    <div className="bg-surface-container-low p-3 rounded-xl space-y-3 border border-surface-variant/30">
-                      <div className="flex items-center gap-2">
-                        <span className="text-body-sm font-semibold w-16">Fichas:</span>
-                        <input 
-                          type="number" 
-                          placeholder="Ex: 0 ou 500"
-                          value={cashOutAmount}
-                          onChange={e => setCashOutAmount(e.target.value)}
-                          className="flex-1 bg-surface-container border border-surface-variant rounded-lg p-2 text-primary focus:outline-none focus:ring-2 focus:ring-primary/50 text-sm"
-                        />
-                      </div>
-                      <button 
-                        onClick={handleCashOutPlayer} 
-                        disabled={cashOutAmount === ""}
-                        className="w-full bg-tertiary-container text-on-tertiary-container py-2.5 rounded-xl font-bold active:scale-95 transition-transform hover:opacity-90 text-sm disabled:opacity-50"
-                      >
-                        Fazer Cash-out (Sair da mesa)
-                      </button>
-                    </div>
+                        <div className="bg-surface-container-low p-3 rounded-xl space-y-3 border border-surface-variant/30">
+                          <div className="flex items-center gap-2">
+                            <span className="text-body-sm font-semibold w-16">Fichas:</span>
+                            <input 
+                              type="number" 
+                              placeholder="Ex: 0 ou 500"
+                              value={cashOutAmount}
+                              onChange={e => setCashOutAmount(e.target.value)}
+                              className="flex-1 bg-surface-container border border-surface-variant rounded-lg p-2 text-primary focus:outline-none focus:ring-2 focus:ring-primary/50 text-sm"
+                            />
+                          </div>
+                          <button 
+                            onClick={handleCashOutPlayer} 
+                            disabled={cashOutAmount === ""}
+                            className="w-full bg-tertiary-container text-on-tertiary-container py-2.5 rounded-xl font-bold active:scale-95 transition-transform hover:opacity-90 text-sm disabled:opacity-50"
+                          >
+                            Fazer Cash-out (Sair da mesa)
+                          </button>
+                        </div>
 
-                    <button onClick={handleRemovePlayer} className="w-full bg-error-container text-error py-2.5 rounded-xl font-bold active:scale-95 transition-transform hover:opacity-90 text-xs mt-2 border border-error/20">
-                      Excluir Jogador (Engano/Mock)
-                    </button>
+                        <button onClick={handleRemovePlayer} className="w-full bg-error-container text-error py-2.5 rounded-xl font-bold active:scale-95 transition-transform hover:opacity-90 text-xs mt-2 border border-error/20">
+                          Excluir Jogador (Engano/Mock)
+                        </button>
+                      </>
+                    )}
                   </div>
                 )}
               </>
