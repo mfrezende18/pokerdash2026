@@ -3,7 +3,7 @@
 import { useState } from "react"
 import Image from "next/image"
 import { cn, formatCurrency } from "@/lib/utils"
-import { addPlayerToSession, addRebuyToSession, removePlayerFromSession } from "@/app/actions"
+import { addPlayerToSession, addRebuyToSession, removePlayerFromSession, cashOutPlayerFromSession } from "@/app/actions"
 import { format } from "date-fns"
 import { ptBR } from "date-fns/locale"
 
@@ -58,6 +58,7 @@ export function InteractiveTable({ sessionInfo, activePlayers, allUsers, isAdmin
   }>({ isOpen: false, seatIndex: null, player: null })
 
   const [buyInAmount, setBuyInAmount] = useState<number>(200)
+  const [cashOutAmount, setCashOutAmount] = useState<string>("")
   const [selectedUserId, setSelectedUserId] = useState<string>("")
 
   // Criar array fixo de 10 posições
@@ -97,6 +98,15 @@ export function InteractiveTable({ sessionInfo, activePlayers, allUsers, isAdmin
     const playerId = popoverState.player.id
     closePopover()
     await removePlayerFromSession(sessionInfo.id, playerId)
+  }
+
+  const handleCashOutPlayer = async () => {
+    if (!popoverState.player || cashOutAmount === "") return
+    const playerId = popoverState.player.id
+    const amount = Number(cashOutAmount)
+    closePopover()
+    setCashOutAmount("")
+    await cashOutPlayerFromSession(sessionInfo.id, playerId, amount)
   }
 
   // Filtrar usuários que já estão sentados
@@ -211,21 +221,44 @@ export function InteractiveTable({ sessionInfo, activePlayers, allUsers, isAdmin
                 </div>
 
                 {isAdmin && (
-                  <div className="flex flex-col gap-3 pt-2">
-                    <div className="flex items-center gap-2">
-                      <span className="text-body-sm">Valor (R$):</span>
-                      <input 
-                        type="number" 
-                        value={buyInAmount}
-                        onChange={e => setBuyInAmount(Number(e.target.value))}
-                        className="flex-1 bg-surface-container border border-surface-variant rounded-lg p-2 text-primary focus:outline-none focus:ring-2 focus:ring-primary/50"
-                      />
+                  <div className="flex flex-col gap-4 pt-2">
+                    <div className="bg-surface-container-low p-3 rounded-xl space-y-3 border border-surface-variant/30">
+                      <div className="flex items-center gap-2">
+                        <span className="text-body-sm font-semibold w-16">Re-buy:</span>
+                        <input 
+                          type="number" 
+                          value={buyInAmount}
+                          onChange={e => setBuyInAmount(Number(e.target.value))}
+                          className="flex-1 bg-surface-container border border-surface-variant rounded-lg p-2 text-primary focus:outline-none focus:ring-2 focus:ring-primary/50 text-sm"
+                        />
+                      </div>
+                      <button onClick={handleAddRebuy} className="w-full bg-primary text-on-primary py-2.5 rounded-xl font-bold active:scale-95 transition-transform hover:opacity-90 text-sm">
+                        Adicionar Re-buy
+                      </button>
                     </div>
-                    <button onClick={handleAddRebuy} className="w-full bg-primary text-on-primary py-3 rounded-xl font-bold active:scale-95 transition-transform hover:opacity-90">
-                      Adicionar Re-buy
-                    </button>
-                    <button onClick={handleRemovePlayer} className="w-full bg-error-container text-error py-3 rounded-xl font-bold active:scale-95 transition-transform hover:opacity-90">
-                      Remover Jogador (Mock)
+
+                    <div className="bg-surface-container-low p-3 rounded-xl space-y-3 border border-surface-variant/30">
+                      <div className="flex items-center gap-2">
+                        <span className="text-body-sm font-semibold w-16">Fichas:</span>
+                        <input 
+                          type="number" 
+                          placeholder="Ex: 0 ou 500"
+                          value={cashOutAmount}
+                          onChange={e => setCashOutAmount(e.target.value)}
+                          className="flex-1 bg-surface-container border border-surface-variant rounded-lg p-2 text-primary focus:outline-none focus:ring-2 focus:ring-primary/50 text-sm"
+                        />
+                      </div>
+                      <button 
+                        onClick={handleCashOutPlayer} 
+                        disabled={cashOutAmount === ""}
+                        className="w-full bg-tertiary-container text-on-tertiary-container py-2.5 rounded-xl font-bold active:scale-95 transition-transform hover:opacity-90 text-sm disabled:opacity-50"
+                      >
+                        Fazer Cash-out (Sair da mesa)
+                      </button>
+                    </div>
+
+                    <button onClick={handleRemovePlayer} className="w-full bg-error-container text-error py-2.5 rounded-xl font-bold active:scale-95 transition-transform hover:opacity-90 text-xs mt-2 border border-error/20">
+                      Excluir Jogador (Engano/Mock)
                     </button>
                   </div>
                 )}

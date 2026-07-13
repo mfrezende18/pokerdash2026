@@ -42,3 +42,21 @@ export async function removePlayerFromSession(sessionId: string, playerId: strin
   
   revalidatePath("/")
 }
+
+export async function cashOutPlayerFromSession(sessionId: string, playerId: string, chipValue: number) {
+  const buyIns = await prisma.buyIn.findMany({
+    where: { sessionId, playerId }
+  })
+  const totalBuyIn = buyIns.reduce((sum, b) => sum + b.amount, 0)
+  
+  await prisma.cashOut.create({
+    data: {
+      sessionId,
+      playerId,
+      chipValue,
+      netResult: chipValue - totalBuyIn,
+    }
+  })
+  
+  revalidatePath("/")
+}
