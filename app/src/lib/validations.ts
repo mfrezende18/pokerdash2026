@@ -28,7 +28,7 @@ export const newSessionSchema = z.object({
 })
 
 export const profileSchema = z.object({
-  phone: z.string().optional().refine(val => !val || /^\\d{10,11}$/.test(val.replace(/\\D/g, "")), {
+  phone: z.string().optional().refine(val => !val || /^\d{10,11}$/.test(val.replace(/\D/g, "")), {
     message: "Telefone inválido. Informe o DDD e o número"
   }),
   pixKey: z.string().max(100, "Chave Pix muito longa").optional(),
