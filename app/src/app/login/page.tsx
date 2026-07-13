@@ -2,6 +2,7 @@
 
 import { useState } from "react"
 import { useRouter } from "next/navigation"
+import Image from "next/image"
 
 export default function LoginPage() {
   const [phone, setPhone] = useState("")
@@ -59,11 +60,8 @@ export default function LoginPage() {
       <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-primary/20 rounded-full blur-[100px] opacity-50 pointer-events-none" />
 
       <div className="w-[90vw] max-w-[400px] z-10 animate-slide-up">
-        <div className="text-center mb-8">
-          <div className="w-16 h-16 bg-surface-container-high rounded-2xl mx-auto mb-6 flex items-center justify-center apple-shadow border border-surface-variant/30">
-            <span className="material-symbols-outlined text-primary text-3xl">playing_cards</span>
-          </div>
-          <h1 className="text-3xl font-bold text-primary tracking-tight">Poker Dash</h1>
+        <div className="text-center mb-8 flex flex-col items-center">
+          <Image src="/logo.jpg" alt="Poker Dash Logo" width={200} height={100} className="w-48 h-auto object-contain mb-2 invert opacity-90 drop-shadow-sm" priority />
           <p className="text-secondary mt-2">Acesse sua conta para entrar na mesa</p>
         </div>
 

@@ -14,9 +14,7 @@ export function TopAppBar({ avatarUrl, showLiveIndicator = true }: TopAppBarProp
     <header className="w-full top-0 sticky z-50 glass-overlay border-b border-surface-variant/50">
       <div className="flex items-center justify-between px-6 py-3 w-full max-w-[1200px] mx-auto">
         <Link href="/" className="flex items-center gap-3">
-          <span className="text-headline-lg-mobile text-primary font-bold tracking-tight">
-            POKER DASH
-          </span>
+          <Image src="/logo.jpg" alt="Poker Dash Logo" width={160} height={28} className="h-7 w-auto object-contain drop-shadow-sm invert opacity-90 mix-blend-screen" priority />
         </Link>
         <div className="flex items-center gap-6">
           {showLiveIndicator && (
