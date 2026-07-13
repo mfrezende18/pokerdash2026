@@ -58,6 +58,13 @@ export default async function RootLayout({
           {requiresPasswordChange && <ForcePasswordChangeModal />}
           <div className={requiresPasswordChange ? "pointer-events-none blur-sm" : ""}>
             {children}
+            <footer className="mt-8 mb-4 text-center px-4 pb-8">
+              <p className="text-[10px] text-secondary/50 font-medium">
+                Desenvolvido por MF.
+                <br />
+                Bugs? <a href="mailto:mfrezende18@gmail.com" className="underline">mfrezende18@gmail.com</a>
+              </p>
+            </footer>
           </div>
           <Suspense fallback={null}>
             <PlayerCashWidgetServer />
