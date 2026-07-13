@@ -215,13 +215,24 @@ async function AdminContent() {
 
               <Link
                 href="/admin/players"
-                className="group flex flex-col p-6 bg-surface-container-lowest border border-surface-variant/20 rounded-2xl ios-shadow transition-all hover:bg-surface-container active:scale-95 text-left md:col-span-2"
+                className="group flex flex-col p-6 bg-surface-container-lowest border border-surface-variant/20 rounded-2xl ios-shadow transition-all hover:bg-surface-container active:scale-95 text-left"
               >
                 <div className="w-12 h-12 rounded-xl bg-primary-container text-on-primary-container flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
                   <span className="material-symbols-outlined">group</span>
                 </div>
                 <span className="text-base text-primary font-bold">Gerenciar Jogadores</span>
-                <p className="text-body-sm text-secondary mt-1">Copiar links de convite</p>
+                <p className="text-body-sm text-secondary mt-1">Copiar convites</p>
+              </Link>
+              
+              <Link
+                href="/admin/events"
+                className="group flex flex-col p-6 bg-surface-container-lowest border border-surface-variant/20 rounded-2xl ios-shadow transition-all hover:bg-surface-container active:scale-95 text-left md:col-span-2"
+              >
+                <div className="w-12 h-12 rounded-xl bg-secondary-container text-on-secondary-container flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+                  <span className="material-symbols-outlined">event</span>
+                </div>
+                <span className="text-base text-primary font-bold">Banners de Eventos</span>
+                <p className="text-body-sm text-secondary mt-1">Upload de banners</p>
               </Link>
             </>
           )}

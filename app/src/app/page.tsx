@@ -224,16 +224,22 @@ async function HomeContent({ sessionUser }: { sessionUser: any }) {
         </div>
       )}
 
-      <div className="grid grid-cols-1 md:grid-cols-12 gap-6">
-        <div className="md:col-span-4">
-          <ChampionCard champion={champion} />
+      {events.length > 0 && (
+        <div className="mt-6">
+          <EventsSection events={events} />
         </div>
-        <div className="md:col-span-8">
-          <RankingList rankings={rankings} />
-        </div>
-      </div>
+      )}
 
-      {events.length > 0 && <EventsSection events={events} />}
+      {!activeSession && (
+        <div className="grid grid-cols-1 md:grid-cols-12 gap-6 mt-6">
+          <div className="md:col-span-4">
+            <ChampionCard champion={champion} />
+          </div>
+          <div className="md:col-span-8">
+            <RankingList rankings={rankings} />
+          </div>
+        </div>
+      )}
 
       {highlights.length > 0 && (
         <HighlightCarousel highlights={highlights} />
