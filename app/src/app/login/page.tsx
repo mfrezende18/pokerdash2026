@@ -61,7 +61,9 @@ export default function LoginPage() {
 
       <div className="w-[90vw] max-w-[400px] z-10 animate-slide-up">
         <div className="text-center mb-8 flex flex-col items-center">
-          <Image src="/logo.jpg" alt="Poker Dash Logo" width={200} height={100} className="w-48 h-auto object-contain mb-2 invert opacity-90 drop-shadow-sm" priority />
+          <div className="bg-white rounded-2xl p-4 mb-4 apple-shadow border border-surface-variant/20 inline-block">
+            <Image src="/logo.png" alt="Poker Dash Logo" width={200} height={100} className="w-48 h-auto object-contain" priority />
+          </div>
           <p className="text-secondary mt-2">Acesse sua conta para entrar na mesa</p>
         </div>
 
