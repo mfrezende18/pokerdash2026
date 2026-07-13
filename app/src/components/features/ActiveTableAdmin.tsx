@@ -139,96 +139,96 @@ export function ActiveTableAdmin({
     .filter(p => p.netResult !== null && p.netResult < 0)
     .reduce((sum, p) => sum + p.netResult!, 0)
 
-  if (!sessionId) {
-    // Se a mesa foi fechada agora, e pediu comprovante:
-    if (sessionClosedSuccessfully && showReceipt) {
-      // Sort players by profit (highest first)
-      const sortedPlayers = [...players].sort((a, b) => {
-        const netA = a.netResult ?? -a.totalBuyIn
-        const netB = b.netResult ?? -b.totalBuyIn
-        return netB - netA
-      })
+  // Se a mesa foi fechada agora, e pediu comprovante:
+  if (sessionClosedSuccessfully && showReceipt) {
+    // Sort players by profit (highest first)
+    const sortedPlayers = [...players].sort((a, b) => {
+      const netA = a.netResult !== null ? a.netResult : ((parseFloat(pendingCashOuts[a.id]) || 0) - a.totalBuyIn)
+      const netB = b.netResult !== null ? b.netResult : ((parseFloat(pendingCashOuts[b.id]) || 0) - b.totalBuyIn)
+      return netB - netA
+    })
 
-      return (
-        <section className="mb-10 max-w-[500px] mx-auto">
-          <div className="bg-surface-container-lowest rounded-3xl ios-shadow border border-surface-variant/20 overflow-hidden flex flex-col">
-            <div className="bg-primary text-on-primary p-6 text-center">
-              <span className="material-symbols-outlined text-4xl mb-2 opacity-80">receipt_long</span>
-              <h3 className="text-title-lg font-bold">Comprovante de Sessão</h3>
-              <p className="text-sm opacity-80 mt-1">{sessionName}</p>
+    return (
+      <section className="mb-10 max-w-[500px] mx-auto">
+        <div className="bg-surface-container-lowest rounded-3xl ios-shadow border border-surface-variant/20 overflow-hidden flex flex-col">
+          <div className="bg-primary text-on-primary p-6 text-center">
+            <span className="material-symbols-outlined text-4xl mb-2 opacity-80">receipt_long</span>
+            <h3 className="text-title-lg font-bold">Comprovante de Sessão</h3>
+            <p className="text-sm opacity-80 mt-1">{sessionName}</p>
+          </div>
+          
+          <div className="p-0 bg-white dark:bg-surface-container-lowest">
+            <div className="flex justify-between px-6 py-3 bg-surface-container-low text-xs font-bold text-secondary tracking-wider">
+              <span>JOGADOR</span>
+              <span>RESULTADO</span>
             </div>
             
-            <div className="p-0 bg-white dark:bg-surface-container-lowest">
-              <div className="flex justify-between px-6 py-3 bg-surface-container-low text-xs font-bold text-secondary tracking-wider">
-                <span>JOGADOR</span>
-                <span>RESULTADO</span>
-              </div>
-              
-              <div className="divide-y divide-surface-variant/20">
-                {sortedPlayers.map((p, i) => {
-                  const net = p.netResult ?? -p.totalBuyIn
-                  const isPositive = net > 0
-                  const isNegative = net < 0
-                  const entries = p.rebuys + 1
-                  const avgEntry = p.totalBuyIn / entries
+            <div className="divide-y divide-surface-variant/20">
+              {sortedPlayers.map((p, i) => {
+                const net = p.netResult !== null ? p.netResult : ((parseFloat(pendingCashOuts[p.id]) || 0) - p.totalBuyIn)
+                const isPositive = net > 0
+                const isNegative = net < 0
+                const entries = p.rebuys + 1
+                const avgEntry = p.totalBuyIn / entries
 
-                  return (
-                    <div key={p.id} className="p-4 px-6 flex justify-between items-center bg-white dark:bg-transparent">
-                      <div>
-                        <p className="font-bold text-primary flex items-center gap-2">
-                          <span className="text-secondary/50 text-xs w-4">{i + 1}º</span>
-                          {p.name}
-                        </p>
-                        <p className="text-[11px] text-secondary mt-1">
-                          Investido: {formatCurrency(p.totalBuyIn)}
-                          {entries > 1 && (
-                            <span className="opacity-70 ml-1">
-                              ({entries}x de {formatCurrency(avgEntry)})
-                            </span>
-                          )}
-                        </p>
-                      </div>
-                      <div className="text-right">
-                        <span className={cn(
-                          "font-bold text-lg",
-                          isPositive ? "text-green-600" : isNegative ? "text-error" : "text-secondary"
-                        )}>
-                          {isPositive ? "+" : ""}{formatCurrency(net)}
-                        </span>
-                      </div>
+                return (
+                  <div key={p.id} className="p-4 px-6 flex justify-between items-center bg-white dark:bg-transparent">
+                    <div>
+                      <p className="font-bold text-primary flex items-center gap-2">
+                        <span className="text-secondary/50 text-xs w-4">{i + 1}º</span>
+                        {p.name}
+                      </p>
+                      <p className="text-[11px] text-secondary mt-1">
+                        Investido: {formatCurrency(p.totalBuyIn)}
+                        {entries > 1 && (
+                          <span className="opacity-70 ml-1">
+                            ({entries}x de {formatCurrency(avgEntry)})
+                          </span>
+                        )}
+                      </p>
                     </div>
-                  )
-                })}
-              </div>
-
-              {/* Totais do Comprovante */}
-              <div className="bg-surface-container-low p-6 flex justify-between items-center border-t border-surface-variant/40">
-                <div>
-                  <p className="text-xs font-bold text-secondary mb-1 tracking-wider">MOVIMENTAÇÃO TOTAL</p>
-                  <p className="text-title-md font-bold text-primary">{formatCurrency(totalPot)}</p>
-                </div>
-                {parseFloat(rakeAmount) > 0 && (
-                  <div className="text-right">
-                    <p className="text-xs font-bold text-secondary mb-1 tracking-wider">RAKE</p>
-                    <p className="text-title-md font-bold text-orange-600">{formatCurrency(parseFloat(rakeAmount))}</p>
+                    <div className="text-right">
+                      <span className={cn(
+                        "font-bold text-lg",
+                        isPositive ? "text-green-600" : isNegative ? "text-error" : "text-secondary"
+                      )}>
+                        {isPositive ? "+" : ""}{formatCurrency(net)}
+                      </span>
+                    </div>
                   </div>
-                )}
-              </div>
+                )
+              })}
             </div>
 
-            <div className="p-6 bg-surface-container-lowest">
-              <button
-                onClick={() => window.location.reload()}
-                className="w-full bg-surface-container-high hover:bg-surface-variant text-primary py-3.5 rounded-xl font-bold transition-all"
-              >
-                Concluir e Sair
-              </button>
+            {/* Totais do Comprovante */}
+            <div className="bg-surface-container-low p-6 flex justify-between items-center border-t border-surface-variant/40">
+              <div>
+                <p className="text-xs font-bold text-secondary mb-1 tracking-wider">MOVIMENTAÇÃO TOTAL</p>
+                <p className="text-title-md font-bold text-primary">{formatCurrency(totalPot)}</p>
+              </div>
+              {parseFloat(rakeAmount) > 0 && (
+                <div className="text-right">
+                  <p className="text-xs font-bold text-secondary mb-1 tracking-wider">RAKE</p>
+                  <p className="text-title-md font-bold text-orange-600">{formatCurrency(parseFloat(rakeAmount))}</p>
+                </div>
+              )}
             </div>
           </div>
-        </section>
-      )
-    }
 
+          <div className="p-6 bg-surface-container-lowest">
+            <button
+              onClick={() => window.location.reload()}
+              className="w-full bg-surface-container-high hover:bg-surface-variant text-primary py-3.5 rounded-xl font-bold transition-all"
+            >
+              Concluir e Sair
+            </button>
+          </div>
+        </div>
+      </section>
+    )
+  }
+
+  if (!sessionId) {
     return (
       <section className="mb-10">
         <div className="bg-surface-container-lowest rounded-2xl ios-shadow border border-surface-variant/20 p-12 text-center">
@@ -237,7 +237,7 @@ export function ActiveTableAdmin({
           </span>
           <h3 className="text-title-md text-primary mb-2">Nenhuma mesa ativa</h3>
           <p className="text-body-sm text-secondary">
-            Clique no botão + para abrir uma nova sessão
+            Inicie uma nova sessão para começar a registrar as movimentações financeiras.
           </p>
         </div>
       </section>
