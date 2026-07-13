@@ -49,6 +49,7 @@ export async function PATCH(
         data: {
           status: "CLOSED",
           closedAt: new Date(),
+          rakeCollected: body.rakeCollected ? parseFloat(body.rakeCollected) : 0,
         },
       })
 

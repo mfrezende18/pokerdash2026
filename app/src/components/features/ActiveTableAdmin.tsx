@@ -31,6 +31,8 @@ export function ActiveTableAdmin({
 }: ActiveTableAdminProps) {
   const [showBuyInModal, setShowBuyInModal] = useState(false)
   const [showCashOutModal, setShowCashOutModal] = useState(false)
+  const [showCloseModal, setShowCloseModal] = useState(false)
+  const [rakeAmount, setRakeAmount] = useState("")
   const [selectedPlayer, setSelectedPlayer] = useState("")
   const [amount, setAmount] = useState("")
   const [isSubmitting, setIsSubmitting] = useState(false)
@@ -96,8 +98,26 @@ export function ActiveTableAdmin({
   const closeModals = () => {
     setShowBuyInModal(false)
     setShowCashOutModal(false)
+    setShowCloseModal(false)
     setSelectedPlayer("")
     setAmount("")
+    setRakeAmount("")
+  }
+
+  const handleCloseSession = async () => {
+    if (!sessionId) return
+    setIsSubmitting(true)
+    try {
+      await fetch(`/api/sessions/${sessionId}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action: "close", rakeCollected: parseFloat(rakeAmount) || 0 })
+      })
+      window.location.reload()
+    } catch (error) {
+      console.error("Erro ao fechar mesa:", error)
+      setIsSubmitting(false)
+    }
   }
 
   // Compute summary totals like the spreadsheet
@@ -139,15 +159,10 @@ export function ActiveTableAdmin({
                 </span>
               </div>
               <button
-                onClick={async () => {
-                  if(confirm("Tem certeza que deseja encerrar a mesa? Jogadores que não fizeram cash-out serão zerados (R$ 0).")) {
-                    await fetch(`/api/sessions/${sessionId}`, {
-                      method: "PATCH",
-                      headers: { "Content-Type": "application/json" },
-                      body: JSON.stringify({ action: "close" })
-                    })
-                    window.location.reload()
-                  }
+                onClick={() => {
+                  setShowCloseModal(true)
+                  setShowBuyInModal(false)
+                  setShowCashOutModal(false)
                 }}
                 className="bg-error-container text-on-error-container px-3 py-1.5 rounded-lg text-xs font-bold active:scale-95 transition-all"
               >
@@ -431,6 +446,118 @@ export function ActiveTableAdmin({
                 className="w-full bg-tertiary-container text-on-tertiary-container py-3.5 rounded-xl font-bold text-sm active:scale-95 transition-all disabled:opacity-50"
               >
                 Confirmar Cash Out
+              </button>
+            </div>
+          </div>
+        </div>
+      {/* Close Session Modal */}
+      {showCloseModal && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm"
+          onClick={closeModals}
+        >
+          <div
+            className="bg-surface-container-lowest rounded-3xl p-8 w-[90vw] max-w-[480px] apple-shadow border border-surface-variant/20"
+            onClick={e => e.stopPropagation()}
+          >
+            <div className="flex justify-between items-center mb-6">
+              <h3 className="text-title-lg text-primary font-semibold">Encerrar Mesa</h3>
+              <button
+                onClick={closeModals}
+                className="w-8 h-8 rounded-full bg-surface-container hover:bg-surface-variant flex items-center justify-center transition-colors"
+              >
+                <span className="material-symbols-outlined text-secondary text-sm">close</span>
+              </button>
+            </div>
+
+            <div className="space-y-5">
+              <p className="text-body-md text-secondary">
+                Insira o valor arrecadado de rake para validar a matemática do caixa.
+              </p>
+              
+              <div className="bg-surface-container-low p-4 rounded-xl">
+                <div className="flex justify-between mb-2">
+                  <span className="text-secondary text-sm">Pot Total de Entradas:</span>
+                  <span className="text-primary font-bold">{formatCurrency(totalPot)}</span>
+                </div>
+                <div className="flex justify-between mb-2 border-t border-surface-variant/20 pt-2">
+                  <span className="text-secondary text-sm">Soma Fichas Vencedoras (+):</span>
+                  <span className="text-green-600 font-bold">+{formatCurrency(totalPositive)}</span>
+                </div>
+                <div className="flex justify-between mb-2">
+                  <span className="text-secondary text-sm">Soma Fichas Perdedoras (-):</span>
+                  <span className="text-error font-bold">{formatCurrency(totalNegative)}</span>
+                </div>
+                <div className="flex justify-between border-t border-surface-variant/20 pt-2">
+                  <span className="text-secondary text-sm font-bold">Saldo do Caixa s/ Rake:</span>
+                  <span className={cn(
+                    "font-bold",
+                    totalPositive + totalNegative < 0 ? "text-error" : "text-primary"
+                  )}>
+                    {formatCurrency(totalPositive + totalNegative)}
+                  </span>
+                </div>
+              </div>
+
+              <div>
+                <label className="text-label-caps text-secondary mb-2 block text-[11px] font-bold tracking-wider">
+                  RAKE ARRECADADO (R$)
+                </label>
+                <input
+                  type="number"
+                  placeholder="Ex: 150"
+                  value={rakeAmount}
+                  onChange={(e) => setRakeAmount(e.target.value)}
+                  className="w-full border border-outline-variant/40 rounded-xl px-4 py-3 bg-white text-primary focus:border-primary focus:outline-none transition-colors"
+                />
+              </div>
+
+              {/* Math Check */}
+              {(() => {
+                const rake = parseFloat(rakeAmount) || 0
+                const balance = totalPositive + totalNegative + rake
+                
+                return (
+                  <div className={cn(
+                    "p-4 rounded-xl border",
+                    Math.abs(balance) < 1
+                      ? "bg-tertiary-container/30 border-tertiary-container/50"
+                      : "bg-error-container/30 border-error-container/50"
+                  )}>
+                    <div className="flex items-center gap-2 mb-1">
+                      <span className={cn(
+                        "material-symbols-outlined text-lg",
+                        Math.abs(balance) < 1 ? "text-on-tertiary-container" : "text-error"
+                      )}>
+                        {Math.abs(balance) < 1 ? "check_circle" : "warning"}
+                      </span>
+                      <span className={cn(
+                        "font-bold text-sm",
+                        Math.abs(balance) < 1 ? "text-on-tertiary-container" : "text-error"
+                      )}>
+                        {Math.abs(balance) < 1 ? "Caixa Batido!" : "Atenção ao Caixa"}
+                      </span>
+                    </div>
+                    <p className={cn(
+                      "text-xs leading-tight",
+                      Math.abs(balance) < 1 ? "text-on-tertiary-container/80" : "text-error/80"
+                    )}>
+                      {Math.abs(balance) < 1 
+                        ? "A matemática confere com as saídas e entradas."
+                        : balance < 0 
+                          ? `Está faltando ${formatCurrency(Math.abs(balance))} no caixa para a conta fechar.`
+                          : `Está sobrando ${formatCurrency(balance)} no caixa de acordo com a conta.`}
+                    </p>
+                  </div>
+                )
+              })()}
+
+              <button
+                onClick={handleCloseSession}
+                disabled={isSubmitting}
+                className="w-full bg-error-container text-on-error-container py-3.5 rounded-xl font-bold text-sm active:scale-95 transition-all disabled:opacity-50 mt-4"
+              >
+                Confirmar Encerramento
               </button>
             </div>
           </div>
