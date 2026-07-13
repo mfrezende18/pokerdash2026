@@ -38,7 +38,7 @@ async function getAdminData() {
   })
 
   const totalPot = activeSession
-    ? activeSession.buyIns.reduce((sum, b) => sum + b.amount, 0)
+    ? activeSession.buyIns.filter(b => b.status === "APPROVED").reduce((sum, b) => sum + b.amount, 0)
     : 0
 
   let totalRake = 0
@@ -61,26 +61,39 @@ async function getAdminData() {
     netResult: number | null
     isActive: boolean
     buyInRecords: number[]
+    isPendingRebuy: boolean
+    pendingRebuyAmount: number | null
+    pendingRebuyId: string | null
   }> = []
 
   if (activeSession) {
     const playerIds = [...new Set(activeSession.buyIns.map((b) => b.playerId))]
 
     for (const pid of playerIds) {
-      const playerBuyIns = activeSession.buyIns.filter((b) => b.playerId === pid)
+      const allPlayerBuyIns = activeSession.buyIns.filter((b) => b.playerId === pid)
+      const approvedBuyIns = allPlayerBuyIns.filter(b => b.status === "APPROVED")
+      const pendingBuyIn = allPlayerBuyIns.find(b => b.status === "PENDING")
+      
       const playerCashOut = activeSession.cashOuts.find((c) => c.playerId === pid)
-      const player = playerBuyIns[0].player
+      
+      // If they only have a pending buy-in and no approved ones, their approved length is 0
+      if (approvedBuyIns.length === 0 && !pendingBuyIn) continue;
+      
+      const player = allPlayerBuyIns[0].player
 
       playerSummaries.push({
         id: player.id,
         name: player.name,
         avatarUrl: player.avatarUrl,
-        totalBuyIn: playerBuyIns.reduce((sum, b) => sum + b.amount, 0),
-        rebuys: playerBuyIns.filter((b) => b.type === "REBUY").length,
+        totalBuyIn: approvedBuyIns.reduce((sum, b) => sum + b.amount, 0),
+        rebuys: approvedBuyIns.filter((b) => b.type === "REBUY").length,
         cashOutValue: playerCashOut?.chipValue ?? null,
         netResult: playerCashOut?.netResult ?? null,
         isActive: !playerCashOut,
-        buyInRecords: playerBuyIns.map(b => b.amount),
+        buyInRecords: approvedBuyIns.map(b => b.amount),
+        isPendingRebuy: !!pendingBuyIn,
+        pendingRebuyAmount: pendingBuyIn ? pendingBuyIn.amount : null,
+        pendingRebuyId: pendingBuyIn ? pendingBuyIn.id : null,
       })
     }
   }

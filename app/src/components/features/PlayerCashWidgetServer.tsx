@@ -18,6 +18,7 @@ export async function PlayerCashWidgetServer() {
           id: true,
           type: true,
           amount: true,
+          status: true,
           createdAt: true,
         },
         orderBy: { createdAt: "asc" },
@@ -35,17 +36,21 @@ export async function PlayerCashWidgetServer() {
   if (activeSession.buyIns.length === 0) return null
   if (activeSession.cashOuts.length > 0) return null
 
-  const transactions = activeSession.buyIns.map((b) => ({
+  const transactions = activeSession.buyIns.filter(b => b.status === "APPROVED").map((b) => ({
     id: b.id,
     type: b.type === "INITIAL" ? ("buyin" as const) : ("rebuy" as const),
     amount: b.amount,
     timestamp: b.createdAt,
   }))
 
+  const hasPendingRebuy = activeSession.buyIns.some(b => b.status === "PENDING")
+
   return (
     <PlayerCashWidget
       transactions={transactions}
       sessionName={activeSession.name}
+      sessionId={activeSession.id}
+      hasPendingRebuy={hasPendingRebuy}
     />
   )
 }

@@ -1,7 +1,7 @@
 "use client"
 
 import { cn, formatCurrency, getInitials } from "@/lib/utils"
-import { useState, useTransition, useRef } from "react"
+import { useState, useTransition, useRef, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import Image from "next/image"
 import { format } from "date-fns"
@@ -18,6 +18,9 @@ interface PlayerSummary {
   netResult: number | null
   isActive: boolean
   buyInRecords?: number[]
+  isPendingRebuy: boolean
+  pendingRebuyAmount: number | null
+  pendingRebuyId: string | null
 }
 
 interface ActiveTableAdminProps {
@@ -44,9 +47,25 @@ export function ActiveTableAdmin({
   const [sessionClosedSuccessfully, setSessionClosedSuccessfully] = useState(false)
   const [showReceipt, setShowReceipt] = useState(false)
   const [isGeneratingImage, setIsGeneratingImage] = useState(false)
+  
+  // Pending Rebuy State
+  const [showApproveModal, setShowApproveModal] = useState(false)
+  const [selectedPendingRebuy, setSelectedPendingRebuy] = useState<PlayerSummary | null>(null)
+  
   const [isPending, startTransition] = useTransition()
   const router = useRouter()
   const receiptRef = useRef<HTMLDivElement>(null)
+
+  // Polling para real-time requests de re-buy
+  useEffect(() => {
+    if (!sessionId) return
+    const interval = setInterval(() => {
+      startTransition(() => {
+        router.refresh()
+      })
+    }, 5000)
+    return () => clearInterval(interval)
+  }, [sessionId, router])
 
   const handleBuyIn = async (type: "INITIAL" | "REBUY") => {
     if (!selectedPlayer || !amount || !sessionId) return
@@ -187,6 +206,39 @@ export function ActiveTableAdmin({
       setIsGeneratingImage(false)
     }
   }
+
+  const handleApproveRebuy = async (action: "APPROVE" | "REJECT") => {
+    if (!selectedPendingRebuy?.pendingRebuyId || !sessionId) return
+    setIsSubmitting(true)
+
+    try {
+      const res = await fetch(`/api/sessions/${sessionId}/approve-rebuy`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          buyInId: selectedPendingRebuy.pendingRebuyId,
+          action,
+        }),
+      })
+
+      if (!res.ok) {
+        const data = await res.json()
+        alert(data.error || "Erro ao processar solicitação")
+      }
+    } catch (error) {
+      console.error(error)
+      alert("Erro ao processar re-buy")
+    } finally {
+      setIsSubmitting(false)
+      setShowApproveModal(false)
+      setSelectedPendingRebuy(null)
+      startTransition(() => {
+        router.refresh()
+      })
+    }
+  }
+
+  if (sessionClosedSuccessfully) {  }
 
   // Se a mesa foi fechada agora, e pediu comprovante:
   if (sessionClosedSuccessfully && showReceipt) {
@@ -358,19 +410,33 @@ export function ActiveTableAdmin({
                       className="hover:bg-surface-container-low transition-colors"
                     >
                       <td className="py-4 flex items-center gap-3">
-                        {player.avatarUrl ? (
-                          player.avatarUrl.startsWith("http") || player.avatarUrl.startsWith("/") ? (
-                            <Image src={player.avatarUrl} alt={player.name} width={32} height={32} className="w-8 h-8 rounded-full object-cover" />
+                        <button 
+                          className={cn(
+                            "relative block rounded-full focus:outline-none",
+                            player.isPendingRebuy && "ring-4 ring-orange-500 animate-pulse active:scale-95"
+                          )}
+                          onClick={() => {
+                            if (player.isPendingRebuy) {
+                              setSelectedPendingRebuy(player)
+                              setShowApproveModal(true)
+                            }
+                          }}
+                          disabled={!player.isPendingRebuy}
+                        >
+                          {player.avatarUrl ? (
+                            player.avatarUrl.startsWith("http") || player.avatarUrl.startsWith("/") ? (
+                              <Image src={player.avatarUrl} alt={player.name} width={32} height={32} className="w-8 h-8 rounded-full object-cover" />
+                            ) : (
+                              <div className="w-8 h-8 rounded-full bg-secondary-container flex items-center justify-center text-lg shadow-sm">
+                                {player.avatarUrl}
+                              </div>
+                            )
                           ) : (
-                            <div className="w-8 h-8 rounded-full bg-secondary-container flex items-center justify-center text-lg shadow-sm">
-                              {player.avatarUrl}
+                            <div className="w-8 h-8 rounded-full bg-secondary-container flex items-center justify-center text-xs font-bold text-on-secondary-container">
+                              {getInitials(player.name)}
                             </div>
-                          )
-                        ) : (
-                          <div className="w-8 h-8 rounded-full bg-secondary-container flex items-center justify-center text-xs font-bold text-on-secondary-container">
-                            {getInitials(player.name)}
-                          </div>
-                        )}
+                          )}
+                        </button>
                         <span className="font-bold text-primary text-sm">
                           {player.name}
                         </span>
@@ -817,6 +883,44 @@ export function ActiveTableAdmin({
                   Não, Voltar ao Início
                 </button>
               </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Modal Rebuy Approval */}
+      {showApproveModal && selectedPendingRebuy && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
+          <div className="bg-surface-container w-full max-w-sm rounded-3xl p-6 shadow-xl animate-in zoom-in-95 duration-200 border border-surface-variant/20">
+            <h3 className="text-xl font-bold text-primary mb-2 text-center">Aprovar Re-buy</h3>
+            <p className="text-secondary text-center mb-6">
+              Confirmar Re-buy de <strong className="text-primary">{formatCurrency(selectedPendingRebuy.pendingRebuyAmount || 0)}</strong> para <strong className="text-primary">{selectedPendingRebuy.name}</strong>?
+            </p>
+            <div className="flex flex-col gap-3">
+              <button
+                onClick={() => handleApproveRebuy("APPROVE")}
+                disabled={isSubmitting}
+                className="w-full bg-orange-500 hover:bg-orange-600 active:bg-orange-700 text-white py-3.5 rounded-xl font-bold transition-colors disabled:opacity-50"
+              >
+                {isSubmitting ? "Processando..." : "Confirmar Re-buy"}
+              </button>
+              <button
+                onClick={() => handleApproveRebuy("REJECT")}
+                disabled={isSubmitting}
+                className="w-full bg-surface-container-high hover:bg-surface-variant text-error py-3.5 rounded-xl font-bold transition-colors disabled:opacity-50"
+              >
+                Recusar Solicitação
+              </button>
+              <button
+                onClick={() => {
+                  setShowApproveModal(false)
+                  setSelectedPendingRebuy(null)
+                }}
+                disabled={isSubmitting}
+                className="w-full py-3 text-secondary font-bold hover:text-primary transition-colors disabled:opacity-50"
+              >
+                Cancelar
+              </button>
             </div>
           </div>
         </div>

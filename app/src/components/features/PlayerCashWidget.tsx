@@ -1,6 +1,7 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useTransition } from "react"
+import { useRouter } from "next/navigation"
 import { cn, formatCurrency } from "@/lib/utils"
 
 interface TableTransaction {
@@ -13,10 +14,14 @@ interface TableTransaction {
 interface PlayerCashWidgetProps {
   transactions: TableTransaction[]
   sessionName: string
+  sessionId: string
+  hasPendingRebuy: boolean
 }
 
-export function PlayerCashWidget({ transactions, sessionName }: PlayerCashWidgetProps) {
+export function PlayerCashWidget({ transactions, sessionName, sessionId, hasPendingRebuy }: PlayerCashWidgetProps) {
   const [isOpen, setIsOpen] = useState(false)
+  const [isPending, startTransition] = useTransition()
+  const router = useRouter()
 
   if (transactions.length === 0) return null
 
@@ -28,6 +33,22 @@ export function PlayerCashWidget({ transactions, sessionName }: PlayerCashWidget
       hour: "2-digit",
       minute: "2-digit",
     })
+  }
+
+  const handleRequestRebuy = async (amount: number) => {
+    try {
+      await fetch(`/api/sessions/${sessionId}/request-rebuy`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ amount }),
+      })
+      startTransition(() => {
+        router.refresh()
+      })
+    } catch (error) {
+      console.error("Erro ao solicitar re-buy:", error)
+      alert("Erro ao solicitar re-buy. Tente novamente.")
+    }
   }
 
   return (
@@ -147,6 +168,40 @@ export function PlayerCashWidget({ transactions, sessionName }: PlayerCashWidget
                 })}
               </div>
             </div>
+
+            {/* Request Re-buy Section */}
+            <div className="bg-surface-container-low border-t border-surface-variant/20 p-5">
+              {hasPendingRebuy ? (
+                <div className="bg-orange-500/10 border border-orange-500/30 rounded-xl p-4 text-center">
+                  <span className="material-symbols-outlined text-orange-500 animate-pulse mb-1">hourglass_top</span>
+                  <p className="text-orange-600 font-bold text-sm">Aguardando Aprovação...</p>
+                  <p className="text-xs text-secondary mt-1">Sua solicitação de re-buy foi enviada ao administrador.</p>
+                </div>
+              ) : (
+                <>
+                  <p className="text-xs font-bold text-secondary uppercase tracking-wider mb-3 text-center">
+                    Solicitar Re-buy
+                  </p>
+                  <div className="flex gap-3">
+                    <button
+                      onClick={() => handleRequestRebuy(50)}
+                      disabled={isPending}
+                      className="flex-1 bg-surface-container hover:bg-surface-variant border border-surface-variant text-primary font-bold py-3 rounded-xl transition-all active:scale-95 disabled:opacity-50"
+                    >
+                      R$ 50
+                    </button>
+                    <button
+                      onClick={() => handleRequestRebuy(100)}
+                      disabled={isPending}
+                      className="flex-1 bg-surface-container hover:bg-surface-variant border border-surface-variant text-primary font-bold py-3 rounded-xl transition-all active:scale-95 disabled:opacity-50"
+                    >
+                      R$ 100
+                    </button>
+                  </div>
+                </>
+              )}
+            </div>
+
           </div>
         </>
       )}
