@@ -256,43 +256,46 @@ const getHighlightsCached = unstable_cache(
 )
 
 
-async function HomeContent({ sessionUser }: { sessionUser: any }) {
-  const [activeSession, champion, rankings, events, highlights, allUsers] =
-    await Promise.all([
-      getActiveSession(),
-      getLastChampionCached(),
-      getLastSessionRankingsCached(),
-      getEventsCached(),
-      getHighlightsCached(),
-      getAllPlayersCached(),
-    ])
-
+async function ActiveTableArea({ sessionUser, allUsers }: { sessionUser: any, allUsers: any[] }) {
+  const activeSession = await getActiveSession()
   const isAdmin = sessionUser?.role === "ADMIN1" || sessionUser?.role === "ADMIN2" || sessionUser?.role === "ADMIN3"
+
+  if (activeSession) {
+    return (
+      <div className="flex flex-col">
+        <InteractiveTable
+          sessionInfo={{
+            id: activeSession.id,
+            name: activeSession.name,
+            totalPot: activeSession.totalPot,
+            playerCount: activeSession.playerCount,
+            startedAt: activeSession.startedAt,
+          }}
+          activePlayers={activeSession.activePlayersData}
+          allUsers={allUsers}
+          isAdmin={isAdmin}
+        />
+        <div className="mt-6">
+          <SessionLogConsole events={activeSession.events} />
+        </div>
+      </div>
+    )
+  }
+
+  return <EmptyTableState isAdmin={isAdmin} />
+}
+
+async function CachedContentArea({ activeSessionPromise }: { activeSessionPromise: Promise<any> }) {
+  const [activeSession, champion, rankings, events, highlights] = await Promise.all([
+    activeSessionPromise,
+    getLastChampionCached(),
+    getLastSessionRankingsCached(),
+    getEventsCached(),
+    getHighlightsCached(),
+  ])
 
   return (
     <>
-      {activeSession ? (
-        <div className="flex flex-col">
-          <InteractiveTable
-            sessionInfo={{
-              id: activeSession.id,
-              name: activeSession.name,
-              totalPot: activeSession.totalPot,
-              playerCount: activeSession.playerCount,
-              startedAt: activeSession.startedAt,
-            }}
-            activePlayers={activeSession.activePlayersData}
-            allUsers={allUsers.map(u => ({ id: u.id, name: u.name }))}
-            isAdmin={isAdmin}
-          />
-          <div className="mt-6">
-            <SessionLogConsole events={activeSession.events} />
-          </div>
-        </div>
-      ) : (
-        <EmptyTableState isAdmin={isAdmin} />
-      )}
-
       {events.length > 0 && (
         <div className="mt-6">
           <EventsSection events={events} />
@@ -317,21 +320,18 @@ async function HomeContent({ sessionUser }: { sessionUser: any }) {
   )
 }
 
-function HomeSkeleton() {
+function TableSkeleton() {
   return (
     <div className="animate-pulse space-y-10">
       <div className="h-[400px] bg-surface-container-high rounded-3xl"></div>
-      <div className="grid grid-cols-1 md:grid-cols-12 gap-6">
-        <div className="md:col-span-4 h-64 bg-surface-container-high rounded-3xl"></div>
-        <div className="md:col-span-8 h-64 bg-surface-container-high rounded-3xl"></div>
-      </div>
-      <div className="h-48 bg-surface-container-high rounded-3xl"></div>
     </div>
   )
 }
 
 export default async function HomePage() {
   const sessionUser = await getAuthSession()
+  const allUsers = await getAllPlayersCached()
+  const activeSessionPromise = getActiveSession() // Initiate request early
 
   return (
     <>
@@ -339,9 +339,13 @@ export default async function HomePage() {
         avatarUrl={sessionUser?.avatarUrl ?? undefined}
       />
 
-      <main className="max-w-[1200px] mx-auto px-4 md:px-6 mt-10 space-y-10">
-        <Suspense fallback={<HomeSkeleton />}>
-          <HomeContent sessionUser={sessionUser} />
+      <main className="max-w-[1200px] mx-auto px-4 md:px-6 mt-10 space-y-10 mb-24">
+        <Suspense fallback={<TableSkeleton />}>
+          <ActiveTableArea sessionUser={sessionUser} allUsers={allUsers.map(u => ({ id: u.id, name: u.name }))} />
+        </Suspense>
+
+        <Suspense fallback={null}>
+          <CachedContentArea activeSessionPromise={activeSessionPromise} />
         </Suspense>
       </main>
 

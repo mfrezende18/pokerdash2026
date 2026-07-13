@@ -45,6 +45,7 @@ export function ChampionCard({ champion }: ChampionCardProps) {
               alt={champion.name}
               width={96}
               height={96}
+              priority
               className="w-24 h-24 rounded-full border-4 border-surface-variant/30 mb-3 object-cover"
             />
           ) : (
