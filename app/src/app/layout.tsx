@@ -42,7 +42,7 @@ export const viewport: Viewport = {
   initialScale: 1,
   maximumScale: 1, // Impede zoom no iOS ao focar em inputs
   userScalable: false,
-  themeColor: "#121212", // Cor de fundo principal
+  themeColor: "#ffffff", // Força o topo branco no iOS
 };
 
 export default async function RootLayout({
@@ -59,6 +59,7 @@ export default async function RootLayout({
       className={`${plusJakarta.variable} ${jetbrainsMono.variable}`}
     >
       <head>
+        <meta name="color-scheme" content="light" />
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet" />

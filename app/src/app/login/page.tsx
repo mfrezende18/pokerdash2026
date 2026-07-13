@@ -60,7 +60,7 @@ export default function LoginPage() {
 
       <div className="w-[90vw] max-w-[400px] z-10">
         <div className="text-center mb-10 flex flex-col items-center">
-          <Image src="/logo.png" alt="Poker Dash Logo" width={400} height={120} className="w-full h-auto object-contain mb-2 invert opacity-90" priority />
+          <img src="/logo.png" alt="Poker Dash Logo" className="w-full max-w-[300px] h-auto object-contain mb-4" />
         </div>
 
         <div className="bg-surface-container-lowest rounded-[32px] p-8 apple-shadow border border-surface-variant/20">
