@@ -16,6 +16,9 @@ interface RankingItem {
   totalProfit: number
   totalSessions: number
   totalInvested: number
+  badge: "inactive" | "streak" | null
+  streakCount: number
+  positionDelta: number | null
 }
 
 interface RankingTableClientProps {
@@ -104,7 +107,12 @@ export function RankingTableClient({ initialRankings }: RankingTableClientProps)
           <tbody className="divide-y divide-surface-variant/10">
             {sortedRankings.map((player, index) => {
               const showTouristHeader = player.isTourist && index === firstTouristIndex
-              
+              const isInactive = player.badge === "inactive"
+              const isStreak = player.badge === "streak"
+
+              // Medal logic: top 3 non-tourists get medals, unless inactive
+              const showMedal = index < 3 && !player.isTourist && !isInactive
+
               return (
                 <Fragment key={player.id}>
                   {showTouristHeader && (
@@ -116,35 +124,71 @@ export function RankingTableClient({ initialRankings }: RankingTableClientProps)
                       </td>
                     </tr>
                   )}
-                  <tr className="hover:bg-surface-container-low transition-colors">
+                  <tr className={cn(
+                    "hover:bg-surface-container-low transition-colors",
+                    isInactive && "opacity-75"
+                  )}>
                     <td className="px-6 py-4 text-lg">
-                      {index < 3 && !player.isTourist ? medals[index] : `${index + 1}º`}
+                      {showMedal ? medals[index] : `${index + 1}º`}
                     </td>
                     <td className="px-6 py-4">
                       <Link href={`/stats/${player.id}`} className="flex items-center gap-3 group/link">
-                        {player.avatarUrl ? (
-                          player.avatarUrl.startsWith("http") || player.avatarUrl.startsWith("/") ? (
-                            <Image
-                              src={player.avatarUrl}
-                              alt={player.name}
-                              width={36}
-                              height={36}
-                              className="w-9 h-9 rounded-full object-cover group-hover/link:ring-2 ring-primary transition-all"
-                            />
+                        {/* Avatar with badge */}
+                        <div className="relative">
+                          {player.avatarUrl ? (
+                            player.avatarUrl.startsWith("http") || player.avatarUrl.startsWith("/") ? (
+                              <Image
+                                src={player.avatarUrl}
+                                alt={player.name}
+                                width={36}
+                                height={36}
+                                className={cn(
+                                  "w-9 h-9 rounded-full object-cover group-hover/link:ring-2 ring-primary transition-all",
+                                  isInactive && "grayscale-[40%]"
+                                )}
+                              />
+                            ) : (
+                              <div className={cn(
+                                "w-9 h-9 rounded-full bg-secondary-container flex items-center justify-center text-lg shadow-sm group-hover/link:ring-2 ring-primary transition-all",
+                                isInactive && "opacity-80"
+                              )}>
+                                {player.avatarUrl}
+                              </div>
+                            )
                           ) : (
-                            <div className="w-9 h-9 rounded-full bg-secondary-container flex items-center justify-center text-lg shadow-sm group-hover/link:ring-2 ring-primary transition-all">
-                              {player.avatarUrl}
+                            <div className={cn(
+                              "w-9 h-9 rounded-full bg-surface-container-high flex items-center justify-center group-hover/link:ring-2 ring-primary transition-all",
+                              isInactive && "opacity-80"
+                            )}>
+                              <span className="text-xs font-bold text-secondary">
+                                {player.name.charAt(0)}
+                              </span>
                             </div>
-                          )
-                        ) : (
-                          <div className="w-9 h-9 rounded-full bg-surface-container-high flex items-center justify-center group-hover/link:ring-2 ring-primary transition-all">
-                            <span className="text-xs font-bold text-secondary">
-                              {player.name.charAt(0)}
+                          )}
+
+                          {/* Activity badge (mini) on avatar */}
+                          {isInactive && (
+                            <span className="absolute -top-1 -right-1 text-xs" title="Inativo">🥶</span>
+                          )}
+                          {isStreak && player.streakCount >= 2 && (
+                            <span className="absolute -top-1.5 -right-2 bg-orange-500 text-white text-[9px] font-bold px-1 py-0.5 rounded-full shadow-sm leading-none flex items-center" title={`${player.streakCount} vitórias seguidas`}>
+                              {player.streakCount}🔥
                             </span>
-                          </div>
-                        )}
-                        <span className="font-semibold text-primary text-sm group-hover/link:underline">
+                          )}
+                        </div>
+
+                        <span className="font-semibold text-primary text-sm group-hover/link:underline flex items-center gap-1.5">
                           {player.name}
+                          {/* Position arrow */}
+                          {player.positionDelta !== null && player.positionDelta < 0 && (
+                            <span className="text-green-600 text-xs font-bold">↑</span>
+                          )}
+                          {player.positionDelta !== null && player.positionDelta > 0 && (
+                            <span className="text-red-500 text-xs font-bold">↓</span>
+                          )}
+                          {player.positionDelta === 0 && (
+                            <span className="text-secondary/50 text-xs">—</span>
+                          )}
                         </span>
                       </Link>
                     </td>

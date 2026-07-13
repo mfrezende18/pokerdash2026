@@ -14,6 +14,7 @@ import { formatCurrency } from "@/lib/utils"
 import { Suspense } from "react"
 import { unstable_cache } from "next/cache"
 import { EmptyTableState } from "@/components/features/EmptyTableState"
+import { computePlayerBadges } from "@/lib/ranking-utils"
 
 async function getActiveSession() {
   const session = await prisma.session.findFirst({
@@ -139,23 +140,45 @@ const getLastChampionCached = unstable_cache(
 
 const getLastSessionRankingsCached = unstable_cache(
   async () => {
-    const lastClosedSession = await prisma.session.findFirst({
-      where: { status: "CLOSED" },
-      orderBy: { closedAt: "desc" },
-      include: {
-        cashOuts: {
-          include: { player: { select: { id: true, name: true, avatarUrl: true } } },
-          orderBy: { netResult: "desc" },
+    const [lastClosedSession, closedSessions] = await Promise.all([
+      prisma.session.findFirst({
+        where: { status: "CLOSED" },
+        orderBy: { closedAt: "desc" },
+        include: {
+          cashOuts: {
+            include: { player: { select: { id: true, name: true, avatarUrl: true } } },
+            orderBy: { netResult: "desc" },
+          },
         },
-      },
-    })
+      }),
+      prisma.session.findMany({
+        where: { status: "CLOSED" },
+        orderBy: { closedAt: "desc" },
+        select: {
+          id: true,
+          closedAt: true,
+          buyIns: { select: { playerId: true } },
+          cashOuts: { select: { playerId: true, netResult: true } },
+        },
+      }),
+    ])
     if (!lastClosedSession) return []
-    return lastClosedSession.cashOuts.map((cashOut) => ({
-      id: cashOut.player.id,
-      name: cashOut.player.name,
-      avatarUrl: cashOut.player.avatarUrl,
-      netResult: cashOut.netResult,
-    }))
+
+    const playerIds = lastClosedSession.cashOuts.map(c => c.player.id)
+    const badgeMap = computePlayerBadges(closedSessions, playerIds)
+
+    return lastClosedSession.cashOuts.map((cashOut) => {
+      const bd = badgeMap.get(cashOut.player.id)
+      return {
+        id: cashOut.player.id,
+        name: cashOut.player.name,
+        avatarUrl: cashOut.player.avatarUrl,
+        netResult: cashOut.netResult,
+        badge: bd?.badge ?? null,
+        streakCount: bd?.streakCount ?? 0,
+        positionDelta: bd?.positionDelta ?? null,
+      }
+    })
   },
   ['last-rankings'],
   { revalidate: 60, tags: ['sessions'] }

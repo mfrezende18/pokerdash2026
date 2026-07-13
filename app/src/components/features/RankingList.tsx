@@ -10,6 +10,9 @@ interface RankingItem {
   name: string
   avatarUrl: string | null
   netResult: number
+  badge?: "inactive" | "streak" | null
+  streakCount?: number
+  positionDelta?: number | null
 }
 
 interface RankingListProps {
@@ -22,56 +25,98 @@ export function RankingList({ rankings }: RankingListProps) {
   const [isModalOpen, setIsModalOpen] = useState(false)
   const top5 = rankings.slice(0, 5)
 
-  const renderPlayerRow = (player: RankingItem, index: number) => (
-    <div
-      key={player.id}
-      className="flex items-center justify-between p-3 hover:bg-surface-container-low rounded-xl transition-all group"
-    >
-      <Link href={`/stats/${player.id}`} className="flex items-center gap-6 group/link">
-        <span className="text-2xl w-8 text-center">
-          {index < 3 ? medals[index] : `${index + 1}º`}
-        </span>
-        {player.avatarUrl ? (
-          player.avatarUrl.startsWith("http") || player.avatarUrl.startsWith("/") ? (
-            <Image
-              src={player.avatarUrl}
-              alt={player.name}
-              width={48}
-              height={48}
-              className="w-12 h-12 rounded-full object-cover group-hover/link:ring-2 ring-primary transition-all"
-            />
-          ) : (
-            <div className="w-12 h-12 rounded-full bg-secondary-container flex items-center justify-center text-xl shadow-sm group-hover/link:ring-2 ring-primary transition-all">
-              {player.avatarUrl}
-            </div>
-          )
-        ) : (
-          <div className="w-12 h-12 rounded-full bg-surface-container-high flex items-center justify-center group-hover/link:ring-2 ring-primary transition-all">
-            <span className="font-bold text-secondary">
-              {player.name.charAt(0)}
-            </span>
-          </div>
-        )}
-        <div>
-          <h5 className="text-base font-semibold text-primary leading-tight group-hover/link:underline">
-            {player.name}
-          </h5>
-        </div>
-      </Link>
+  const renderPlayerRow = (player: RankingItem, index: number) => {
+    const isInactive = player.badge === "inactive"
+    const isStreak = player.badge === "streak"
 
-      <div className="text-right">
-        <span
-          className={cn(
-            "text-mono-data text-sm font-bold",
-            player.netResult >= 0 ? "text-green-600" : "text-error"
-          )}
-        >
-          {player.netResult > 0 ? "+" : ""}
-          {formatCurrency(player.netResult)}
-        </span>
+    return (
+      <div
+        key={player.id}
+        className={cn(
+          "flex items-center justify-between p-3 hover:bg-surface-container-low rounded-xl transition-all group",
+          isInactive && "opacity-75"
+        )}
+      >
+        <Link href={`/stats/${player.id}`} className="flex items-center gap-6 group/link">
+          <span className="text-2xl w-8 text-center">
+            {index < 3 ? medals[index] : `${index + 1}º`}
+          </span>
+
+          {/* Avatar with badge */}
+          <div className="relative">
+            {player.avatarUrl ? (
+              player.avatarUrl.startsWith("http") || player.avatarUrl.startsWith("/") ? (
+                <Image
+                  src={player.avatarUrl}
+                  alt={player.name}
+                  width={48}
+                  height={48}
+                  className={cn(
+                    "w-12 h-12 rounded-full object-cover group-hover/link:ring-2 ring-primary transition-all",
+                    isInactive && "grayscale-[40%]"
+                  )}
+                />
+              ) : (
+                <div className={cn(
+                  "w-12 h-12 rounded-full bg-secondary-container flex items-center justify-center text-xl shadow-sm group-hover/link:ring-2 ring-primary transition-all",
+                  isInactive && "opacity-80"
+                )}>
+                  {player.avatarUrl}
+                </div>
+              )
+            ) : (
+              <div className={cn(
+                "w-12 h-12 rounded-full bg-surface-container-high flex items-center justify-center group-hover/link:ring-2 ring-primary transition-all",
+                isInactive && "opacity-80"
+              )}>
+                <span className="font-bold text-secondary">
+                  {player.name.charAt(0)}
+                </span>
+              </div>
+            )}
+
+            {/* Activity badge on avatar */}
+            {isInactive && (
+              <span className="absolute -top-1 -right-1 text-sm" title="Jogador inativo">🥶</span>
+            )}
+            {isStreak && (player.streakCount ?? 0) >= 2 && (
+              <span className="absolute -top-1.5 -right-2 bg-orange-500 text-white text-[9px] font-bold px-1 py-0.5 rounded-full shadow-sm leading-none flex items-center" title={`${player.streakCount} vitórias seguidas`}>
+                {player.streakCount}🔥
+              </span>
+            )}
+          </div>
+
+          <div>
+            <h5 className="text-base font-semibold text-primary leading-tight group-hover/link:underline flex items-center gap-1.5">
+              {player.name}
+              {/* Position arrow */}
+              {player.positionDelta !== undefined && player.positionDelta !== null && player.positionDelta < 0 && (
+                <span className="text-green-600 text-xs font-bold">↑</span>
+              )}
+              {player.positionDelta !== undefined && player.positionDelta !== null && player.positionDelta > 0 && (
+                <span className="text-red-500 text-xs font-bold">↓</span>
+              )}
+              {player.positionDelta === 0 && (
+                <span className="text-secondary/50 text-xs">—</span>
+              )}
+            </h5>
+          </div>
+        </Link>
+
+        <div className="text-right">
+          <span
+            className={cn(
+              "text-mono-data text-sm font-bold",
+              player.netResult >= 0 ? "text-green-600" : "text-error"
+            )}
+          >
+            {player.netResult > 0 ? "+" : ""}
+            {formatCurrency(player.netResult)}
+          </span>
+        </div>
       </div>
-    </div>
-  )
+    )
+  }
 
   return (
     <>
