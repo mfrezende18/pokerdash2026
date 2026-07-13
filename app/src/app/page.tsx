@@ -90,6 +90,15 @@ async function getActiveSession() {
       })
     } else {
       // It's APPROVED
+      const isRequested = Math.abs(b.updatedAt.getTime() - b.createdAt.getTime()) > 1000
+      
+      if (isRequested) {
+        allEvents.push({
+          id: b.id + "-pending-history",
+          timestamp: b.createdAt,
+          message: `${b.player.name} solicitou re-buy de ${formatCurrency(b.amount)}`,
+        })
+      }
       rebuyCounts[b.playerId] = (rebuyCounts[b.playerId] || 0) + 1
       const count = rebuyCounts[b.playerId]
       if (count === 1) {

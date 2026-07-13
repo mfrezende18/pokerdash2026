@@ -20,6 +20,7 @@ interface PlayerCashWidgetProps {
 
 export function PlayerCashWidget({ transactions, sessionName, sessionId, hasPendingRebuy }: PlayerCashWidgetProps) {
   const [isOpen, setIsOpen] = useState(false)
+  const [successAnimation, setSuccessAnimation] = useState(false)
   const [isPending, startTransition] = useTransition()
   const router = useRouter()
 
@@ -37,17 +38,28 @@ export function PlayerCashWidget({ transactions, sessionName, sessionId, hasPend
 
   const handleRequestRebuy = async (amount: number) => {
     try {
-      await fetch(`/api/sessions/${sessionId}/request-rebuy`, {
+      const res = await fetch(`/api/sessions/${sessionId}/request-rebuy`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ amount }),
       })
-      startTransition(() => {
-        router.refresh()
-      })
-    } catch (error) {
+      
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}))
+        throw new Error(data.error || "Falha na solicitação")
+      }
+
+      setSuccessAnimation(true)
+      setTimeout(() => {
+        setSuccessAnimation(false)
+        startTransition(() => {
+          router.refresh()
+        })
+      }, 2000)
+      
+    } catch (error: any) {
       console.error("Erro ao solicitar re-buy:", error)
-      alert("Erro ao solicitar re-buy. Tente novamente.")
+      alert(error.message || "Erro ao solicitar re-buy. Tente novamente.")
     }
   }
 
@@ -170,8 +182,13 @@ export function PlayerCashWidget({ transactions, sessionName, sessionId, hasPend
             </div>
 
             {/* Request Re-buy Section */}
-            <div className="bg-surface-container-low border-t border-surface-variant/20 p-5">
-              {hasPendingRebuy ? (
+            <div className="bg-surface-container-low border-t border-surface-variant/20 p-5 min-h-[140px] flex flex-col justify-center">
+              {successAnimation ? (
+                <div className="bg-green-500/10 border border-green-500/30 rounded-xl p-4 text-center animate-in fade-in zoom-in duration-300">
+                  <span className="material-symbols-outlined text-green-500 text-3xl mb-1">check_circle</span>
+                  <p className="text-green-600 font-bold text-sm">Solicitação Enviada!</p>
+                </div>
+              ) : hasPendingRebuy ? (
                 <div className="bg-orange-500/10 border border-orange-500/30 rounded-xl p-4 text-center">
                   <span className="material-symbols-outlined text-orange-500 animate-pulse mb-1">hourglass_top</span>
                   <p className="text-orange-600 font-bold text-sm">Aguardando Aprovação...</p>
