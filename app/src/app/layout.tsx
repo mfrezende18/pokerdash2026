@@ -4,6 +4,8 @@ import "./globals.css";
 import { getAuthSession } from "@/lib/auth";
 import { ForcePasswordChangeModal } from "@/components/features/ForcePasswordChangeModal";
 import { SupabaseRealtimeProvider } from "@/components/providers/SupabaseRealtimeProvider";
+import { PlayerCashWidgetServer } from "@/components/features/PlayerCashWidgetServer";
+import { Suspense } from "react";
 
 const plusJakarta = Plus_Jakarta_Sans({
   variable: "--font-plus-jakarta",
@@ -57,6 +59,9 @@ export default async function RootLayout({
           <div className={requiresPasswordChange ? "pointer-events-none blur-sm" : ""}>
             {children}
           </div>
+          <Suspense fallback={null}>
+            <PlayerCashWidgetServer />
+          </Suspense>
         </SupabaseRealtimeProvider>
       </body>
     </html>
