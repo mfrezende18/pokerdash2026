@@ -103,6 +103,33 @@ export default function PlayersAdminPage() {
     }
   }
 
+  const handleUpdatePhone = async (playerId: string, currentPhone: string | null) => {
+    const newPhone = prompt("Digite o novo número de celular com DDD (apenas números ou no formato (XX) XXXXX-XXXX):", currentPhone || "")
+    if (newPhone === null) return // Cancelado
+    
+    setIsUpdating(playerId)
+    try {
+      const res = await fetch("/api/admin/players", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ playerId, action: "updatePhone", phone: newPhone })
+      })
+      const data = await res.json()
+
+      if (res.ok) {
+        setPlayers(prev => prev.map(p => p.id === playerId ? { ...p, phone: data.player.phone } : p))
+        alert("Telefone atualizado com sucesso!")
+      } else {
+        alert(data.error || "Erro ao atualizar telefone")
+      }
+    } catch (e) {
+      console.error(e)
+      alert("Erro de conexão")
+    } finally {
+      setIsUpdating(null)
+    }
+  }
+
   return (
     <>
       <TopAppBar />
@@ -149,7 +176,23 @@ export default function PlayersAdminPage() {
                         )}
                       </td>
                       <td className="py-4 text-secondary text-sm">
-                        {player.phone || "Não definido"}
+                        <div className="flex items-center gap-1">
+                          {player.phone ? (
+                            <span>{player.phone}</span>
+                          ) : (
+                            <span className="italic opacity-50">Não definido</span>
+                          )}
+                          {currentUserRole === "ADMIN1" && (
+                            <button
+                              onClick={() => handleUpdatePhone(player.id, player.phone)}
+                              disabled={isUpdating === player.id}
+                              className="text-primary hover:text-primary/70 transition-colors p-1.5 rounded-md hover:bg-primary/10 disabled:opacity-50 ml-1"
+                              title="Editar Telefone"
+                            >
+                              <span className="material-symbols-outlined text-[16px]">edit</span>
+                            </button>
+                          )}
+                        </div>
                       </td>
                       <td className="py-4 text-secondary text-sm">
                         {player.pixKey || "Não definido"}

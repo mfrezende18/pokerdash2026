@@ -80,6 +80,34 @@ export async function PATCH(request: Request) {
       return NextResponse.json({ success: true, player: updated })
     }
 
+    // Update Phone
+    if (action === "updatePhone") {
+      const { phone } = body
+      if (sessionUser.role !== "ADMIN1") {
+        return NextResponse.json({ error: "Apenas o Admin 1 pode alterar telefones" }, { status: 403 })
+      }
+      if (!phone) {
+        return NextResponse.json({ error: "Telefone é obrigatório" }, { status: 400 })
+      }
+      
+      const cleanPhone = phone.replace(/\D/g, "")
+      if (cleanPhone.length < 10) {
+        return NextResponse.json({ error: "Telefone inválido. Informe o DDD." }, { status: 400 })
+      }
+
+      const existingPhone = await prisma.user.findUnique({ where: { phone: cleanPhone } })
+      if (existingPhone && existingPhone.id !== playerId) {
+        return NextResponse.json({ error: "Este telefone já está em uso por outro jogador" }, { status: 400 })
+      }
+
+      const updated = await prisma.user.update({
+        where: { id: playerId },
+        data: { phone: cleanPhone }
+      })
+
+      return NextResponse.json({ success: true, player: updated })
+    }
+
     // Update Role
     if (newRole) {
       const validRoles = ["ADMIN1", "ADMIN2", "ADMIN3", "USER"]

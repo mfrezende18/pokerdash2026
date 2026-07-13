@@ -1,25 +1,21 @@
-import { PrismaClient } from "@prisma/client"
-import bcrypt from "bcryptjs"
+import { PrismaClient } from '@prisma/client'
+import bcrypt from 'bcryptjs'
 
 const prisma = new PrismaClient()
 
 async function main() {
-  const users = await prisma.user.findMany()
-  const defaultPassword = await bcrypt.hash("123456", 10)
+  const passwordHash = await bcrypt.hash('mudar123', 10)
   
-  for (const user of users) {
-    if (user.name !== "MF" && user.name !== "Admin") {
-      await prisma.user.update({
-        where: { id: user.id },
-        data: { 
-          passwordHash: defaultPassword,
-          requirePasswordChange: true 
-        }
-      })
-      console.log(`Reset password for: ${user.name}`)
+  const result = await prisma.user.updateMany({
+    where: {
+      name: { not: 'MF' }
+    },
+    data: {
+      passwordHash: passwordHash,
+      requirePasswordChange: true
     }
-  }
-  console.log("Done resetting passwords.")
+  })
+  console.log(`Updated ${result.count} users with password 'mudar123'.`)
 }
 
 main().catch(console.error).finally(() => prisma.$disconnect())
