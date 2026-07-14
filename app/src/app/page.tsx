@@ -8,7 +8,7 @@ import { RankingList } from "@/components/features/RankingList"
 import { EventsSection } from "@/components/features/EventsSection"
 import { HighlightCarousel } from "@/components/features/HighlightCarousel"
 import { InteractiveTable } from "@/components/features/InteractiveTable"
-import { SessionLogConsole } from "@/components/features/SessionLogConsole"
+import { SessionLogConsole, buildSessionEvents } from "@/components/features/SessionLogConsole"
 import { getAuthSession } from "@/lib/auth"
 import { formatCurrency } from "@/lib/utils"
 import { Suspense } from "react"
@@ -16,125 +16,62 @@ import { unstable_cache } from "next/cache"
 import { EmptyTableState } from "@/components/features/EmptyTableState"
 import { computePlayerBadges } from "@/lib/ranking-utils"
 
-async function getActiveSession() {
-  const session = await prisma.session.findFirst({
-    where: { status: "ACTIVE" },
-    include: {
-      buyIns: { 
-        include: { player: { select: { id: true, name: true, avatarUrl: true } } }, 
-        orderBy: { createdAt: "asc" } 
+const getActiveSessionCached = unstable_cache(
+  async () => {
+    const session = await prisma.session.findFirst({
+      where: { status: "ACTIVE" },
+      include: {
+        buyIns: { 
+          include: { player: { select: { id: true, name: true, avatarUrl: true } } }, 
+          orderBy: { createdAt: "asc" } 
+        },
+        cashOuts: { 
+          include: { player: { select: { id: true, name: true, avatarUrl: true } } } 
+        },
       },
-      cashOuts: { 
-        include: { player: { select: { id: true, name: true, avatarUrl: true } } } 
-      },
-    },
-    orderBy: { startedAt: "desc" },
-  })
-
-  if (!session) return null
-
-  const totalPot = session.buyIns.filter(b => b.status === "APPROVED").reduce((sum, b) => sum + b.amount, 0)
-  const uniquePlayers = new Set(session.buyIns.map((b) => b.playerId))
-  const activePlayersIds = [...uniquePlayers].filter(
-    (pid) => !session.cashOuts.some((c) => c.playerId === pid)
-  )
-
-  const activePlayersData = activePlayersIds.map((pid) => {
-    const allPlayerBuyIns = session.buyIns.filter((b) => b.playerId === pid)
-    const approvedBuyIns = allPlayerBuyIns.filter(b => b.status === "APPROVED")
-    const pendingBuyIn = allPlayerBuyIns.find(b => b.status === "PENDING")
-    
-    // Default to the first buy in we found if no approved exist yet (for edge cases)
-    const player = allPlayerBuyIns[0].player
-    return {
-      id: player.id,
-      name: player.name,
-      avatarUrl: player.avatarUrl,
-      totalSpent: approvedBuyIns.reduce((sum, b) => sum + b.amount, 0),
-      rebuyCount: approvedBuyIns.filter(b => b.type === "REBUY").length,
-      joinedAt: allPlayerBuyIns[0].createdAt,
-      isPendingRebuy: !!pendingBuyIn,
-      pendingRebuyAmount: pendingBuyIn ? pendingBuyIn.amount : null,
-      pendingRebuyId: pendingBuyIn ? pendingBuyIn.id : null,
-    }
-  })
-
-  // Build the action console events
-  const allEvents: Array<{ id: string; message: string; timestamp: Date }> = []
-  const rebuyCounts: Record<string, number> = {}
-
-  for (const b of session.buyIns) {
-    if (b.status === "PENDING") {
-      allEvents.push({
-        id: b.id + "-pending",
-        timestamp: b.createdAt,
-        message: `${b.player.name} solicitou re-buy de ${formatCurrency(b.amount)}`,
-      })
-      continue
-    }
-    
-    if (b.status === "REJECTED") {
-      allEvents.push({
-        id: b.id + "-rejected",
-        timestamp: b.updatedAt,
-        message: `❌ Solicitação de re-buy de ${b.player.name} foi recusada`,
-      })
-      continue
-    }
-
-    if (b.type === "INITIAL") {
-      allEvents.push({
-        id: b.id,
-        timestamp: b.createdAt,
-        message: `${b.player.name} entrou no jogo: buy-in ${formatCurrency(b.amount)}`,
-      })
-    } else {
-      // It's APPROVED
-      const isRequested = Math.abs(b.updatedAt.getTime() - b.createdAt.getTime()) > 1000
-      
-      if (isRequested) {
-        allEvents.push({
-          id: b.id + "-pending-history",
-          timestamp: b.createdAt,
-          message: `${b.player.name} solicitou re-buy de ${formatCurrency(b.amount)}`,
-        })
-      }
-      rebuyCounts[b.playerId] = (rebuyCounts[b.playerId] || 0) + 1
-      const count = rebuyCounts[b.playerId]
-      if (count === 1) {
-        allEvents.push({
-          id: b.id,
-          timestamp: b.updatedAt,
-          message: `✅ re-buy para o ${b.player.name} ${formatCurrency(b.amount)}`,
-        })
-      } else {
-        allEvents.push({
-          id: b.id,
-          timestamp: b.updatedAt,
-          message: `✅ ${count}º re-buy ${b.player.name} ${formatCurrency(b.amount)}`,
-        })
-      }
-    }
-  }
-
-  for (const c of session.cashOuts) {
-    allEvents.push({
-      id: c.id,
-      timestamp: c.createdAt,
-      message: `${c.player.name} fez cash-out de ${formatCurrency(c.chipValue)}`,
+      orderBy: { startedAt: "desc" },
     })
-  }
 
-  allEvents.sort((a, b) => b.timestamp.getTime() - a.timestamp.getTime())
+    if (!session) return null
 
-  return {
-    ...session,
-    totalPot,
-    playerCount: activePlayersIds.length,
-    activePlayersData,
-    events: allEvents,
-  }
-}
+    const totalPot = session.buyIns.filter((b: any) => b.status === "APPROVED").reduce((sum: number, b: any) => sum + b.amount, 0)
+    const uniquePlayers = new Set(session.buyIns.map((b: any) => b.playerId))
+    const activePlayersIds = [...uniquePlayers].filter(
+      (pid) => !session.cashOuts.some((c: any) => c.playerId === pid)
+    )
+
+    const activePlayersData = activePlayersIds.map((pid) => {
+      const allPlayerBuyIns = session.buyIns.filter((b: any) => b.playerId === pid)
+      const approvedBuyIns = allPlayerBuyIns.filter((b: any) => b.status === "APPROVED")
+      const pendingBuyIn = allPlayerBuyIns.find((b: any) => b.status === "PENDING")
+      
+      const player = allPlayerBuyIns[0].player
+      return {
+        id: player.id,
+        name: player.name,
+        avatarUrl: player.avatarUrl,
+        totalSpent: approvedBuyIns.reduce((sum: number, b: any) => sum + b.amount, 0),
+        rebuyCount: approvedBuyIns.filter((b: any) => b.type === "REBUY").length,
+        joinedAt: allPlayerBuyIns[0].createdAt,
+        isPendingRebuy: !!pendingBuyIn,
+        pendingRebuyAmount: pendingBuyIn ? pendingBuyIn.amount : null,
+        pendingRebuyId: pendingBuyIn ? pendingBuyIn.id : null,
+      }
+    })
+
+    const allEvents = buildSessionEvents(session)
+
+    return {
+      ...session,
+      totalPot,
+      playerCount: activePlayersIds.length,
+      activePlayersData,
+      events: allEvents,
+    }
+  },
+  ["active-session"],
+  { tags: ["active-session"] }
+)
 
 const getAllPlayersCached = unstable_cache(
   async () => {
@@ -257,7 +194,7 @@ const getHighlightsCached = unstable_cache(
 
 
 async function ActiveTableArea({ sessionUser, allUsers }: { sessionUser: any, allUsers: any[] }) {
-  const activeSession = await getActiveSession()
+  const activeSession = await getActiveSessionCached()
   const isAdmin = sessionUser?.role === "ADMIN1" || sessionUser?.role === "ADMIN2" || sessionUser?.role === "ADMIN3"
 
   if (activeSession) {
@@ -331,7 +268,7 @@ function TableSkeleton() {
 export default async function HomePage() {
   const sessionUser = await getAuthSession()
   const allUsers = await getAllPlayersCached()
-  const activeSessionPromise = getActiveSession() // Initiate request early
+  const activeSessionPromise = getActiveSessionCached() // Initiate request early
 
   return (
     <>

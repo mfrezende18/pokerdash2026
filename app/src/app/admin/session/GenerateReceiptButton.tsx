@@ -20,7 +20,8 @@ export function GenerateReceiptButton({ session }: { session: any }) {
         const blob = await (await fetch(dataUrl)).blob()
         const file = new File([blob], fileName, { type: blob.type })
         if (navigator.share && navigator.canShare && navigator.canShare({ files: [file] })) {
-          await navigator.share({ title: 'Comprovante de Sessão', files: [file] })
+          const formattedDate = format(new Date(session.closedAt || session.startedAt), "dd/MM/yyyy")
+          await navigator.share({ title: `Comprovante de Sessão - ${formattedDate}`, files: [file] })
           setIsGenerating(false)
           return
         }

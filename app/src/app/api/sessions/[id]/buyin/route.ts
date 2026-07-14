@@ -3,6 +3,7 @@ import { prisma } from "@/lib/db"
 import { buyInSchema } from "@/lib/validations"
 import { successResponse, errorResponse, zodErrorResponse } from "@/lib/api-response"
 import { z } from "zod"
+import { revalidateTag } from "next/cache"
 
 export async function POST(
   request: NextRequest,
@@ -48,6 +49,8 @@ export async function POST(
         type,
       },
     })
+
+    
 
     return successResponse(buyIn, 201)
   } catch (error) {

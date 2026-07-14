@@ -49,6 +49,7 @@ model Session {
   startedAt     DateTime  @default(now())
   closedAt      DateTime?
   createdById   String
+  systemLog     String?   @db.Text
 
   createdBy     User      @relation("SessionCreator", fields: [createdById], references: [id])
   buyIns        BuyIn[]

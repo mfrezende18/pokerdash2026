@@ -2,6 +2,7 @@ import { NextRequest } from "next/server"
 import { prisma } from "@/lib/db"
 import { successResponse, errorResponse } from "@/lib/api-response"
 import { getAuthSession } from "@/lib/auth"
+import { revalidateTag } from "next/cache"
 
 export async function POST(
   request: NextRequest,
@@ -57,7 +58,9 @@ export async function POST(
       },
     })
 
-    return successResponse(buyIn, 201)
+    
+
+    return successResponse({ pendingRebuy: buyIn }, 201)
   } catch (error) {
     console.error("Erro ao solicitar re-buy:", error)
     return errorResponse("Erro interno", 500)

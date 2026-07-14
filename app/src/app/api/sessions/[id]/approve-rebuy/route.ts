@@ -2,6 +2,7 @@ import { NextRequest } from "next/server"
 import { prisma } from "@/lib/db"
 import { successResponse, errorResponse } from "@/lib/api-response"
 import { getAuthSession } from "@/lib/auth"
+import { revalidateTag } from "next/cache"
 
 export async function POST(
   request: NextRequest,
@@ -47,12 +48,14 @@ export async function POST(
         where: { id: buyInId },
         data: { status: "APPROVED" }
       })
+      
       return successResponse(updated, 200)
     } else {
       // Reject
       const deleted = await prisma.buyIn.delete({
         where: { id: buyInId }
       })
+      
       return successResponse({ deleted: true }, 200)
     }
 

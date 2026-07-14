@@ -56,16 +56,7 @@ export function ActiveTableAdmin({
   const router = useRouter()
   const receiptRef = useRef<HTMLDivElement>(null)
 
-  // Polling para real-time requests de re-buy
-  useEffect(() => {
-    if (!sessionId) return
-    const interval = setInterval(() => {
-      startTransition(() => {
-        router.refresh()
-      })
-    }, 5000)
-    return () => clearInterval(interval)
-  }, [sessionId, router])
+  // Polling removed in favor of SupabaseRealtimeProvider
 
   const handleBuyIn = async (type: "INITIAL" | "REBUY") => {
     if (!selectedPlayer || !amount || !sessionId) return

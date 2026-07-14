@@ -26,6 +26,7 @@ export async function addRebuyToSession(sessionId: string, playerId: string, amo
     },
   })
   
+  
   revalidatePath("/")
 }
 
@@ -39,6 +40,7 @@ export async function removePlayerFromSession(sessionId: string, playerId: strin
       playerId,
     }
   })
+  
   
   revalidatePath("/")
 }
@@ -57,6 +59,7 @@ export async function cashOutPlayerFromSession(sessionId: string, playerId: stri
       netResult: chipValue - totalBuyIn,
     }
   })
+  
   
   revalidatePath("/")
 }

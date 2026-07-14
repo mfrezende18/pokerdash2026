@@ -3,6 +3,7 @@
 import { useState } from "react"
 import { formatCurrency } from "@/lib/utils"
 import { getDetailedSession } from "@/app/caixa/actions"
+import { GenerateReceiptButton } from "@/app/admin/session/GenerateReceiptButton"
 
 interface BasicSession {
   id: string
@@ -141,6 +142,9 @@ export function HistoryListClient({ sessions, currentUserRole }: HistoryListClie
             <div className="flex items-center justify-between p-5 border-b border-surface-variant/20">
               <h2 className="text-title-md text-primary">Detalhes da Sessão</h2>
               <div className="flex items-center gap-3">
+                {detailedSession && (currentUserRole === "ADMIN1" || currentUserRole === "ADMIN2" || currentUserRole === "ADMIN3") && (
+                  <GenerateReceiptButton session={detailedSession} />
+                )}
                 {currentUserRole === "ADMIN1" && (
                   <button 
                     onClick={handleDelete}

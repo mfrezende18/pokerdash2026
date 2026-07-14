@@ -7,6 +7,7 @@ import { NewSessionForm } from "./NewSessionForm"
 import { EditSessionModal } from "./EditSessionModal"
 import { DeleteSessionButton } from "./DeleteSessionButton"
 import { GenerateReceiptButton } from "./GenerateReceiptButton"
+import { ViewSessionLogsModal } from "./ViewSessionLogsModal"
 
 export const dynamic = "force-dynamic"
 
@@ -63,11 +64,16 @@ export default async function SessionPage() {
                     <span className="text-title-md text-primary font-bold">{formatCurrency(pot)}</span>
                   </div>
 
-                  {isClosed && isAdmin1 && (
+                  {isClosed && (
                     <div className="flex items-center">
+                      <ViewSessionLogsModal session={session} />
                       <GenerateReceiptButton session={session} />
-                      <EditSessionModal session={session} />
-                      <DeleteSessionButton sessionId={session.id} />
+                      {isAdmin1 && (
+                        <>
+                          <EditSessionModal session={session} />
+                          <DeleteSessionButton sessionId={session.id} />
+                        </>
+                      )}
                     </div>
                   )}
                 </div>

@@ -40,18 +40,30 @@ interface InteractiveTableProps {
   isAdmin: boolean
 }
 
-// 10 Seats coordinates mapping (Mobile vertical table vs Desktop horizontal table)
+// 11 Seats coordinates mapping (Mobile vertical table vs Desktop horizontal table)
 const seatClasses = [
-  "top-[15%] left-[0%] md:top-[30%] md:left-[2%]",
-  "top-[50%] left-[-5%] md:top-[70%] md:left-[2%]",
-  "top-[85%] left-[0%] md:top-[0%] md:left-[20%]",
-  "top-[0%] left-[30%] md:top-[0%] md:left-[50%]",
-  "top-[0%] left-[70%] md:top-[0%] md:left-[80%]",
-  "top-[15%] left-[100%] md:top-[30%] md:left-[98%]",
-  "top-[50%] left-[105%] md:top-[70%] md:left-[98%]",
-  "top-[85%] left-[100%] md:top-[100%] md:left-[80%]",
-  "top-[100%] left-[70%] md:top-[100%] md:left-[50%]",
-  "top-[100%] left-[30%] md:top-[100%] md:left-[20%]"
+  // Mobile Left 1, Desktop Left 1
+  "top-[20%] left-[0%] md:top-[30%] md:left-[0%]",
+  // Mobile Left 2, Desktop Left 2
+  "top-[50%] left-[0%] md:top-[70%] md:left-[0%]",
+  // Mobile Left 3, Desktop Top 1
+  "top-[80%] left-[0%] md:top-[0%] md:left-[20%]",
+  // Mobile Top 1, Desktop Top 2
+  "top-[0%] left-[30%] md:top-[0%] md:left-[40%]",
+  // Mobile Top 2, Desktop Top 3
+  "top-[0%] left-[70%] md:top-[0%] md:left-[60%]",
+  // Mobile Right 1, Desktop Top 4
+  "top-[20%] left-[100%] md:top-[0%] md:left-[80%]",
+  // Mobile Right 2, Desktop Right 1
+  "top-[50%] left-[100%] md:top-[30%] md:left-[100%]",
+  // Mobile Right 3, Desktop Right 2
+  "top-[80%] left-[100%] md:top-[70%] md:left-[100%]",
+  // Mobile Bottom 1, Desktop Bottom 1
+  "top-[100%] left-[80%] md:top-[100%] md:left-[75%]",
+  // Mobile Bottom 2, Desktop Bottom 2
+  "top-[100%] left-[50%] md:top-[100%] md:left-[50%]",
+  // Mobile Bottom 3, Desktop Bottom 3
+  "top-[100%] left-[20%] md:top-[100%] md:left-[25%]"
 ]
 
 export function InteractiveTable({ sessionInfo, activePlayers, allUsers, isAdmin }: InteractiveTableProps) {
@@ -67,8 +79,8 @@ export function InteractiveTable({ sessionInfo, activePlayers, allUsers, isAdmin
   const [isSubmittingRebuy, setIsSubmittingRebuy] = useState(false)
   const router = useRouter()
 
-  // Criar array fixo de 10 posições
-  const seats = Array.from({ length: 10 }).map((_, i) => activePlayers[i] || null)
+  // Criar array fixo de 11 posições
+  const seats = Array.from({ length: 11 }).map((_, i) => activePlayers[i] || null)
 
   const handleSeatClick = (index: number, player: PlayerData | null) => {
     if (!isAdmin && !player) return // Users can't click empty seats
@@ -180,7 +192,7 @@ export function InteractiveTable({ sessionInfo, activePlayers, allUsers, isAdmin
             key={index}
             onClick={() => handleSeatClick(index, player)}
             className={cn(
-              "absolute w-14 h-14 md:w-20 md:h-20 rounded-full flex items-center justify-center transform -translate-x-1/2 -translate-y-1/2 cursor-pointer transition-all border-4 shadow-lg",
+              "absolute w-12 h-12 md:w-16 md:h-16 rounded-full flex items-center justify-center transform -translate-x-1/2 -translate-y-1/2 cursor-pointer transition-all border-4 shadow-lg",
               seatClasses[index],
               player ? "bg-surface-container border-primary hover:scale-105" : "bg-black/40 border-white/10 hover:border-white/40 border-dashed backdrop-blur-sm",
               player?.isPendingRebuy && "ring-4 ring-orange-500 animate-pulse border-none"

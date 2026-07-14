@@ -23,6 +23,7 @@ export async function GET() {
 import { newSessionSchema } from "@/lib/validations"
 import { successResponse, errorResponse, zodErrorResponse } from "@/lib/api-response"
 import { z } from "zod"
+import { revalidateTag } from "next/cache"
 
 export async function POST(request: NextRequest) {
   try {
@@ -70,6 +71,8 @@ export async function POST(request: NextRequest) {
         createdById,
       },
     })
+
+    
 
     return successResponse(session, 201)
   } catch (error) {

@@ -1,5 +1,6 @@
+import { formatCurrency } from "@/lib/utils"
 
-interface SessionEvent {
+export interface SessionEvent {
   id: string
   message: string
   timestamp: Date
@@ -41,4 +42,75 @@ export function SessionLogConsole({ events }: SessionLogConsoleProps) {
       </div>
     </div>
   )
+}
+
+export function buildSessionEvents(session: any): SessionEvent[] {
+  const allEvents: SessionEvent[] = []
+  const rebuyCounts: Record<string, number> = {}
+
+  for (const b of session.buyIns || []) {
+    if (b.status === "PENDING") {
+      allEvents.push({
+        id: b.id + "-pending",
+        timestamp: b.createdAt,
+        message: `${b.player?.name} solicitou re-buy de ${formatCurrency(b.amount)}`,
+      })
+      continue
+    }
+    
+    if (b.status === "REJECTED") {
+      allEvents.push({
+        id: b.id + "-rejected",
+        timestamp: b.updatedAt,
+        message: `❌ Solicitação de re-buy de ${b.player?.name} foi recusada`,
+      })
+      continue
+    }
+
+    if (b.type === "INITIAL") {
+      allEvents.push({
+        id: b.id,
+        timestamp: b.createdAt,
+        message: `${b.player?.name} entrou no jogo: buy-in ${formatCurrency(b.amount)}`,
+      })
+    } else {
+      // APPROVED
+      const isRequested = Math.abs(new Date(b.updatedAt).getTime() - new Date(b.createdAt).getTime()) > 1000
+      
+      if (isRequested) {
+        allEvents.push({
+          id: b.id + "-pending-history",
+          timestamp: b.createdAt,
+          message: `${b.player?.name} solicitou re-buy de ${formatCurrency(b.amount)}`,
+        })
+      }
+      rebuyCounts[b.playerId] = (rebuyCounts[b.playerId] || 0) + 1
+      const count = rebuyCounts[b.playerId]
+      if (count === 1) {
+        allEvents.push({
+          id: b.id,
+          timestamp: b.updatedAt,
+          message: `✅ re-buy para o ${b.player?.name} ${formatCurrency(b.amount)}`,
+        })
+      } else {
+        allEvents.push({
+          id: b.id,
+          timestamp: b.updatedAt,
+          message: `✅ ${count}º re-buy ${b.player?.name} ${formatCurrency(b.amount)}`,
+        })
+      }
+    }
+  }
+
+  for (const c of session.cashOuts || []) {
+    allEvents.push({
+      id: c.id,
+      timestamp: c.createdAt,
+      message: `${c.player?.name} fez cash-out de ${formatCurrency(c.chipValue)}`,
+    })
+  }
+
+  allEvents.sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime())
+
+  return allEvents
 }

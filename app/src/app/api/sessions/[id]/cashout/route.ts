@@ -3,6 +3,7 @@ import { prisma } from "@/lib/db"
 import { cashOutSchema } from "@/lib/validations"
 import { successResponse, errorResponse, zodErrorResponse } from "@/lib/api-response"
 import { z } from "zod"
+import { revalidateTag } from "next/cache"
 
 export async function POST(
   request: NextRequest,
@@ -66,6 +67,8 @@ export async function POST(
         netResult,
       },
     })
+
+    
 
     return successResponse(cashOut, 201)
   } catch (error) {

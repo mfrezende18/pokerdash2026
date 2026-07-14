@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server"
 import { prisma } from "@/lib/db"
 import { revalidatePath, revalidateTag } from "next/cache"
+import { buildSessionEvents } from "@/components/features/SessionLogConsole"
 
 export async function PATCH(
   request: NextRequest,
@@ -42,17 +43,30 @@ export async function PATCH(
         })
       }
 
+      // Fetch the session again to get all final cashouts with player data
+      const finalSession = await prisma.session.findUnique({
+        where: { id },
+        include: { 
+          buyIns: { include: { player: true } }, 
+          cashOuts: { include: { player: true } } 
+        },
+      })
+
+      const events = buildSessionEvents(finalSession)
+
       const updated = await prisma.session.update({
         where: { id },
         data: {
           status: "CLOSED",
           closedAt: new Date(),
           rakeCollected: body.rakeCollected ? parseFloat(body.rakeCollected) : 0,
+          systemLog: JSON.stringify(events),
         },
       })
 
       // @ts-expect-error
       revalidateTag("sessions")
+      
       revalidatePath("/")
 
       return NextResponse.json(updated)
@@ -86,6 +100,7 @@ export async function DELETE(
 
     // @ts-expect-error
     revalidateTag("sessions")
+    
     revalidatePath("/")
 
     return NextResponse.json({ success: true })
