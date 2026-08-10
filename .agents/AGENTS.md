@@ -46,3 +46,9 @@ Ao inserir ou modificar Sessões (`Session`) no banco de dados via scripts ou im
 ---
 
 *Estas diretrizes são blindagens. Ao atuar neste projeto, trate-as como verdades absolutas.*
+
+## 7. Sistema de Re-buys Pendentes
+Existe um fluxo de "Solicitação de Re-buy" pelo widget do jogador, onde um re-buy entra no banco de dados como `status: "PENDING"`.
+- **Cálculo da Mesa Ativa:** Em `src/app/page.tsx` (e áreas similares que mostram pot da mesa em andamento), o cálculo do "Pot Total" e "Total Gasto do Jogador" **DEVE SEMPRE** filtrar `.filter(b => b.status === "APPROVED")`. Re-buys pendentes nunca somam no dinheiro real.
+- **Log de Ações (System Log):** Para gerar a linha do tempo precisa (`SessionLogConsole`), usamos o `createdAt` para a solicitação inicial (pendente) e o `updatedAt` para quando foi de fato aprovado ou rejeitado.
+- **Aprovação Admin:** É feita interceptando o clique no avatar (que fica com a classe `ring-4 ring-orange-500 animate-pulse` se tiver `isPendingRebuy: true`), abrindo um modal fixo no desktop com `max-w-[320px]`.
