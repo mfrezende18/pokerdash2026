@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react"
 import { TopAppBar } from "@/components/layout/TopAppBar"
 import { BottomNavBar } from "@/components/layout/BottomNavBar"
+import { CreatePlayerModal } from "./CreatePlayerModal"
 
 interface Player {
   id: string
@@ -135,13 +136,20 @@ export default function PlayersAdminPage() {
       <TopAppBar />
 
       <main className="max-w-[1200px] mx-auto px-4 md:px-6 mt-8 mb-24">
-        <div className="flex justify-between items-center mb-8">
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8">
           <div>
             <h1 className="text-headline-lg text-primary">Jogadores</h1>
             <p className="text-body-lg text-secondary mt-1">
               Gestão de dados e permissões
             </p>
           </div>
+          {currentUserRole === "ADMIN1" && (
+            <CreatePlayerModal
+              onPlayerCreated={(newPlayer) => {
+                setPlayers(prev => [...prev, newPlayer].sort((a, b) => a.name.localeCompare(b.name)))
+              }}
+            />
+          )}
         </div>
 
         <div className="bg-surface-container-lowest rounded-2xl p-6 apple-shadow border border-surface-variant/20">

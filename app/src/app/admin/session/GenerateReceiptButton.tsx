@@ -1,7 +1,6 @@
 "use client"
 
 import { useState, useRef } from "react"
-import { toPng } from "html-to-image"
 import { ReceiptTable } from "@/components/features/ReceiptTable"
 import { format } from "date-fns"
 
@@ -13,6 +12,7 @@ export function GenerateReceiptButton({ session }: { session: any }) {
     if (!receiptRef.current) return
     setIsGenerating(true)
     try {
+      const { toPng } = await import("html-to-image")
       const dataUrl = await toPng(receiptRef.current, { quality: 1, backgroundColor: "#000" })
       const fileName = `Comprovante-${session.name?.replace(/\s+/g, "-") || "Sessao"}.png`
       

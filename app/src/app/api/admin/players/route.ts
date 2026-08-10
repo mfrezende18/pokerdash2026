@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server"
 import { prisma } from "@/lib/db"
 import { getAuthSession } from "@/lib/auth"
+import bcrypt from "bcryptjs"
 
 export async function GET(request: Request) {
   try {
@@ -35,6 +36,66 @@ export async function GET(request: Request) {
   } catch (error) {
     console.error("Fetch players error:", error)
     return NextResponse.json({ error: "Erro interno" }, { status: 500 })
+  }
+}
+
+export async function POST(request: Request) {
+  try {
+    const sessionUser = await getAuthSession()
+    
+    if (sessionUser?.role !== "ADMIN1") {
+      return NextResponse.json({ error: "Apenas o Supremo pode adicionar jogadores" }, { status: 403 })
+    }
+
+    const body = await request.json()
+    const { name, phone } = body
+
+    if (!name || !phone) {
+      return NextResponse.json({ error: "Nome e telefone são obrigatórios" }, { status: 400 })
+    }
+
+    const cleanPhone = phone.replace(/\D/g, "")
+    if (cleanPhone.length < 10) {
+      return NextResponse.json({ error: "Telefone inválido. Informe o DDD." }, { status: 400 })
+    }
+
+    const existingPhone = await prisma.user.findFirst({ 
+      where: { 
+        phone: cleanPhone,
+        role: { not: "DELETED" } 
+      } 
+    })
+    
+    if (existingPhone) {
+      return NextResponse.json({ error: "Este telefone já está cadastrado em um jogador ativo." }, { status: 400 })
+    }
+
+    const passwordHash = await bcrypt.hash("mudar123", 10)
+
+    const newUser = await prisma.user.create({
+      data: {
+        name,
+        phone: cleanPhone,
+        passwordHash,
+        requirePasswordChange: true,
+        role: "USER"
+      }
+    })
+
+    const playerResponse = {
+      id: newUser.id,
+      name: newUser.name,
+      phone: newUser.phone,
+      pixKey: newUser.pixKey,
+      role: newUser.role,
+      inviteToken: newUser.inviteToken,
+      status: "REGISTRADO"
+    }
+
+    return NextResponse.json({ success: true, player: playerResponse })
+  } catch (error) {
+    console.error("Create error:", error)
+    return NextResponse.json({ error: "Erro interno ao criar jogador" }, { status: 500 })
   }
 }
 

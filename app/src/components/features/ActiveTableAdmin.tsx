@@ -5,7 +5,6 @@ import { useState, useTransition, useRef, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import Image from "next/image"
 import { format } from "date-fns"
-import { toPng } from "html-to-image"
 import { ReceiptTable, ReceiptPlayerData } from "./ReceiptTable"
 
 interface PlayerSummary {
@@ -159,6 +158,7 @@ export function ActiveTableAdmin({
     if (!receiptRef.current) return
     try {
       setIsGeneratingImage(true)
+      const { toPng } = await import("html-to-image")
       
       // html-to-image sometimes needs a warmup on Safari
       await toPng(receiptRef.current, { quality: 1, backgroundColor: "#000" })
