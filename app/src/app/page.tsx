@@ -172,8 +172,8 @@ const getLastSessionRankingsCached = unstable_cache(
 const getEventsCached = unstable_cache(
   async () => {
     return prisma.event.findMany({
-      where: { eventDate: { gte: new Date() } },
-      orderBy: { eventDate: "asc" },
+      where: { isActive: true },
+      orderBy: { createdAt: "desc" },
       take: 4,
     })
   },

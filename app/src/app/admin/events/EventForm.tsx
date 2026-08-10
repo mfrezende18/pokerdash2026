@@ -8,6 +8,7 @@ export function EventForm({ existingEvent, userId }: { existingEvent: any, userI
   const [description, setDescription] = useState(existingEvent?.description || "")
   const [imageUrl, setImageUrl] = useState(existingEvent?.imageUrl || "")
   const [ctaUrl, setCtaUrl] = useState(existingEvent?.ctaUrl || "")
+  const [isActive, setIsActive] = useState(existingEvent?.isActive ?? true)
   const [isLoading, setIsLoading] = useState(false)
   const fileInputRef = useRef<HTMLInputElement>(null)
   const router = useRouter()
@@ -37,6 +38,7 @@ export function EventForm({ existingEvent, userId }: { existingEvent: any, userI
           description,
           imageUrl,
           ctaUrl,
+          isActive,
         })
       })
 
@@ -138,6 +140,27 @@ export function EventForm({ existingEvent, userId }: { existingEvent: any, userI
             <span className="material-symbols-outlined">upload</span>
             {imageUrl ? "Trocar Imagem" : "Escolher Imagem"}
           </button>
+        </div>
+
+        <div className="flex items-center gap-4 bg-surface-variant/20 p-4 rounded-xl border border-outline-variant/30">
+          <label className="flex items-center gap-3 cursor-pointer">
+            <div className="relative">
+              <input
+                type="checkbox"
+                checked={isActive}
+                onChange={(e) => setIsActive(e.target.checked)}
+                className="sr-only"
+              />
+              <div className={`block w-14 h-8 rounded-full transition-colors ${isActive ? 'bg-primary' : 'bg-surface-variant'}`}></div>
+              <div className={`dot absolute left-1 top-1 bg-surface w-6 h-6 rounded-full transition-transform ${isActive ? 'translate-x-6' : ''}`}></div>
+            </div>
+            <div>
+              <span className="block text-label-lg font-bold text-on-surface">Visibilidade do Banner</span>
+              <span className="block text-body-sm text-secondary">
+                {isActive ? "Banner está ativo e visível para os jogadores." : "Banner está oculto."}
+              </span>
+            </div>
+          </label>
         </div>
 
         <div className="pt-6 flex flex-col md:flex-row gap-4 border-t border-surface-variant/20">

@@ -11,12 +11,12 @@ export async function POST(request: Request) {
     }
 
     const data = await request.json()
-    const { id, title, description, imageUrl, ctaUrl } = data
+    const { id, title, description, imageUrl, ctaUrl, isActive } = data
 
     if (id) {
       await prisma.event.update({
         where: { id },
-        data: { title, description, imageUrl, ctaUrl }
+        data: { title, description, imageUrl, ctaUrl, isActive: isActive ?? true }
       })
     } else {
       await prisma.event.create({
@@ -25,6 +25,7 @@ export async function POST(request: Request) {
           description,
           imageUrl,
           ctaUrl,
+          isActive: isActive ?? true,
           createdById: session.id,
           eventDate: new Date() // Generic event date since we just use it as a banner
         }

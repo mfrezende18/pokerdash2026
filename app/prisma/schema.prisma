@@ -99,6 +99,7 @@ model Event {
   ctaText     String?
   ctaUrl      String?
   eventDate   DateTime
+  isActive    Boolean  @default(true)
   createdById String
   createdAt   DateTime @default(now())
 
